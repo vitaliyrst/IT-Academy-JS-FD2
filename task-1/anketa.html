@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Anketa</title>
+</head>
+<body>
+<script>
+    function getFullName() {
+        let surname = prompt('Введите Вашу фамилию');
+
+        while (surname === null || surname.trim() === '') {
+            surname = prompt('Введите Вашу фамилию');
+        }
+        let name = prompt('Введите Ваше имя');
+        while (name === null || name.trim() === '') {
+            name = prompt('Введите Ваше имя');
+        }
+        let middleName = prompt('Введите Ваше отчество');
+        while (middleName === null || middleName.trim() === '') {
+            middleName = prompt('Введите Ваше отчество');
+        }
+        return `ФИО: ${surname} ${name} ${middleName} \n`;
+    }
+
+    function getAge() {
+        let age = Number(prompt('Ваш возраст?'));
+        while (isNaN(age) || age <= 0) {
+            age = prompt('Ваш возраст?');
+        }
+        return age;
+    }
+
+    function getSex() {
+        return confirm('Нажмите "Ок", если Ваш пол мужской');
+    }
+
+    function getOtherInformation() {
+        let age = getAge();
+        let sex = getSex();
+        let gender = '';
+        (sex === true) ? gender = 'мужской' : gender += 'женский';
+
+        let days = age * 365;
+        let ageLater = age + 5;
+
+        let retirementAge = '';
+        (sex === true && age >= 62) || (sex === false && age >= 57)
+            ? retirementAge = 'да' : retirementAge = 'нет';
+        return (
+            'Ваш возраст в годах: ' + age + '\n' +
+            'Ваш возраст в днях: ' + days + '\n' +
+            'Через 5 лет вам будет: ' + ageLater + '\n' +
+            'Ваш пол: ' + gender + '\n' +
+            'Вы на пенсии: ' + retirementAge
+        );
+    }
+
+    let result = getFullName() + getOtherInformation();
+    alert(result);
+</script>
+</body>
+</html>
