@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>palindromerec</title>
+</head>
+<body>
+<script>
+    "use strict";
+
+    let text = prompt('Введите текст');
+    while (text === null) {
+        text = prompt('Введите корректную фразу');
+    }
+
+    function isPalindrome(text) {
+        let formatText = text.toLowerCase()
+            .replace(/[^а-яё]|[ъь]/g, '')
+            .replace(/ё/g, 'е');
+
+        return (function palindrome(text) {
+            if (text.length < 2) {
+                return true;
+            }
+            if (text[0] === text[text.length - 1]) {
+                return palindrome(text.slice(1, -1));
+            }
+            return false;
+        })(formatText);
+    }
+
+    console.log(isPalindrome(text));
+</script>
+</body>
+</html>

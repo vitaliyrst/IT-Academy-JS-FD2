@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Without trim</title>
+</head>
+<body>
+
+
+<script>
+    let someText = prompt('Введите текст');
+    while (someText === null) {
+        someText = prompt('Введите корректный текст');
+    }
+
+    function cleanText(text) {
+        let start = 0;
+        let end = text.length;
+        while (text[start] === ' ') {
+            start++;
+        }
+        if (text.length === start) {
+            console.log('В строке только пробелы');
+            return text;
+        }
+        while (text[end - 1] === ' ') {
+            end--;
+        }
+        if (start === 0 && end === text.length) {
+            console.log('В начале и в конце строки нет пробелов');
+            return text;
+        }
+        return text.substring(start, end);
+    }
+
+    let resultWord = `Введенный текст |${cleanText(someText)}| Введенный текст`;
+    console.log(resultWord);
+</script>
+</body>
+</html>

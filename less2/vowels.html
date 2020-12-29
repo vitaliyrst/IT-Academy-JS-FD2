@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vowels</title>
+</head>
+<body>
+<script>
+    "use strict"
+
+    let text = prompt('Введите текст');
+    while (text === null || text.trim() === '') {
+        text = prompt('Введите корректный текст!');
+    }
+
+    function vowelsCounter(text) {
+        const vowels = {
+            "а": 1, "е": 2, "ё": 3, "и": 4, "о": 5,
+            "у": 6, "э": 7, "ю": 8, "ы": 9, "я": 10,
+        };
+        let count = 0;
+        let numberOfLetters = text.length;
+        text = text.toLowerCase();
+        for (let i = 0; i < numberOfLetters; i++) {
+            if (text[i] in vowels) {
+                count += 1;
+            }
+        }
+        return count;
+    }
+
+    console.log(vowelsCounter(text));
+
+    console.time();
+    for (let i = 0; i < 1000; i++) {
+        vowelsCounter(text);
+    }
+    console.timeEnd();
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>vowels array</title>
+</head>
+<body>
+<script>
+    "use strict";
+
+    let text = prompt('Введите текст');
+    while (text === null || text.trim() === '') {
+        text = prompt('Введите корректный текст!');
+    }
+
+    function vowelsForEach(text) {
+        const vowels = ['а', 'е', 'ё', 'и', 'о', 'у', 'э', 'ю', 'ы', 'я'];
+        let newText = text.toLowerCase().split('');
+        let count = 0;
+
+        newText.forEach((function (value) {
+            if (vowels.includes(value)) {
+                count++;
+            }
+        }));
+        return count;
+    }
+
+    function vowelsFilter(text) {
+        const vowels = ['а', 'е', 'ё', 'и', 'о', 'у', 'э', 'ю', 'ы', 'я'];
+        let newText = text.toLowerCase().split('');
+        /*return newText.filter( value => vowels.includes(value) ).length;*/
+        return newText.filter((function (value) {
+            return vowels.includes(value);
+        })).length;
+    }
+
+    function vowelsReduce(text) {
+        const vowels = ['а', 'е', 'ё', 'и', 'о', 'у', 'э', 'ю', 'ы', 'я'];
+        let newText = text.toLowerCase().split('');
+
+        return newText.reduce((function (acc, value) {
+            if (vowels.includes(value)) {
+                return ++acc;
+            } else {
+                return acc;
+            }
+        }), 0);
+    }
+
+    console.log(vowelsForEach(text));
+    console.log(vowelsFilter(text));
+    console.log(vowelsReduce(text));
+</script>
+</body>
+</html>

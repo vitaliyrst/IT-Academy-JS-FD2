@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>deepCopy</title>
+</head>
+<body>
+<script>
+    "use strict";
+
+    function deepCopy(data) {
+        if (typeof data !== "object" || data == null) {
+            return data;
+        }
+        if (data instanceof Array) {
+            let newData = [];
+            for (let i = 0; i < data.length; i++) {
+                newData[i] = deepCopy(data[i]);
+            }
+            return newData;
+        }
+        if (data instanceof Object) {
+            let data2 = {};
+            for (let key in data) {
+                data2[key] = deepCopy(data[key]);
+            }
+            return data2;
+        }
+    }
+
+    let h1 = {a: 5, b: {b1: 6, b2: 7}, c: [33, 22], d: null, e: undefined, f: Number.NaN};
+    let h2 = deepCopy(h1);
+    let res1 = `
+    Тест: h1 = {a: 5, b: {b1: 6, b2: 7}, c: [33, 22], d: null, e: undefined, f: Number.NaN}
+
+    h1===h2 ${(h1 === h2) ? ' - TRUE' : ' - FALSE'}
+    h1.a===h2.a ${(h1.a === h2.a) ? ' - TRUE' : ' - FALSE'}
+    h1.b===h2.b ${(h1.b === h2.b) ? ' - TRUE' : ' - FALSE'}
+    h1.b.b1===h2.b.b1 ${(h1.b.b1 === h2.b.b1) ? ' - TRUE' : ' - FALSE'}
+    h1.c===h2.c ${(h1.c === h2.c) ? ' - TRUE' : ' - FALSE'}
+    h1.c[0]===h2.c[0] ${(h1.c[0] === h2.c[0]) ? ' - TRUE' : ' - FALSE'}
+    h1.d===h2.d ${(h1.d === h2.d) ? ' - TRUE' : ' - FALSE'}
+    h1.e===h2.e ${(h1.e === h2.e) ? ' - TRUE' : ' - FALSE'}
+    isNaN(h2.f) ${(isNaN(h2.f)) ? ' - TRUE' : ' - FALSE'}
+    h2.c instanceof Array ${(h2.c instanceof Array) ? ' - TRUE' : ' - FALSE'}
+    `;
+    console.log(res1);
+
+    let a1 = [5, {b1: 6, b2: 7}, [33, 22], null, undefined, Number.NaN];
+    let a2 = deepCopy(a1);
+    let res2 = `
+    Тест: a1 = [5, {b1: 6, b2: 7}, [33, 22], null, undefined, Number.NaN]
+
+    a1===a2 ${(a1 === a2) ? ' - TRUE' : ' - FALSE'}
+    typeof(a2)===typeof(a1) ${(typeof (a2) === typeof (a1)) ? ' - TRUE' : ' - FALSE'}
+    a1[0]===a2[0] ${(a1[0] === a2[0]) ? ' - TRUE' : ' - FALSE'}
+    a1[1]===a2[1] ${(a1[1] === a2[1]) ? ' - TRUE' : ' - FALSE'}
+    a1[1].b1===a2[1].b1 ${(a1[1].b1 === a2[1].b1) ? ' - TRUE' : ' - FALSE'}
+    a1[2]===a2[2] ${(a1[2] === a2[2]) ? ' - TRUE' : ' - FALSE'}
+    a1[2][0]===a2[2][0] ${(a1[2][0] === a2[2][0]) ? ' - TRUE' : ' - FALSE'}
+    a1[3]===a2[3] ${(a1[3] === a2[3]) ? ' - TRUE' : ' - FALSE'}
+    a1[4]===a2[4] ${(a1[4] === a2[4]) ? ' - TRUE' : ' - FALSE'}
+    isNaN(a2[5]) ${(isNaN(a2[5])) ? ' - TRUE' : ' - FALSE'}
+    a2[2] instanceof Array ${(a2[2] instanceof Array) ? ' - TRUE' : ' - FALSE'}
+    `;
+    console.log(res2);
+
+    let v1 = "sss";
+    let v2 = deepCopy(v1);
+    let res3 = `
+    Тест: v1 = "sss"
+
+    typeof (v2) === typeof (v1) ${(typeof (v2) === typeof (v1)) ? ' - TRUE' : ' - FALSE'}
+    v1 === v2 ${(v1 === v2) ? ' - TRUE' : ' - FALSE'}
+    `;
+    console.log(res3);
+
+    let z1 = null;
+    let z2 = deepCopy(z1);
+    let res4 = `
+    typeof (z2) === typeof (z1) ${(typeof (z2) === typeof (z1)) ? ' - TRUE' : ' - FALSE'}
+    z1 === z2 ${(z1 === z2) ? ' - TRUE' : ' - FALSE'}
+    `;
+    console.log(res4);
+
+    let n1 = Number.NaN;
+    let n2 = deepCopy(n1);
+    let res5 = `
+    Тест: n1 = Number.NaN
+
+    typeof (n2) === typeof (n1) ${(typeof (n2) === typeof (n1)) ? ' - TRUE' : ' - FALSE'}
+    isNaN(n2) ${(isNaN(n2)) ? ' - TRUE' : ' - FALSE'}
+    `;
+    console.log(res5);
+</script>
+</body>
+</html>

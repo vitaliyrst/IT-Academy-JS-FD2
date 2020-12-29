@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>palindrome</title>
+</head>
+<body>
+<script>
+    "use strict";
+
+    let text = prompt('Введите текст');
+    while (text === null) {
+        text = prompt('Введите корректную фразу');
+    }
+
+    function isPalindrome(text) {
+        
+        let formatText = text.toLowerCase()
+            .replace(/[^а-яё]|[ъь]/g, '')
+            .replace(/ё/g, 'е');
+
+        if(formatText.length < 1) {
+            return false;
+        }
+
+        let start = 0;
+        let end = formatText.length - 1;
+        let middle = Math.floor(formatText.length / 2);
+
+        while (start < end) {
+            if (formatText[start] === formatText[end]) {
+                start++;
+                end--;
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    console.log(isPalindrome(text));
+</script>
+</body>
+</html>
