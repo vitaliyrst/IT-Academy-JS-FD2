@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>deepcomp</title>
+</head>
+<body>
+<script>
+    "use strict";
+
+    function deepComp(first, second) {
+        if (first === null || first === undefined || second === null || second === undefined) {
+            return first === second;
+        }
+        if (first === second) {
+            return true;
+        }
+        if (typeof first !== typeof second) {
+            return false;
+        }
+        if (typeof first === 'number' && isNaN(first) && isNaN(second)) {
+            return true;
+        }
+        if (first instanceof Array) {
+            if (!Array.isArray(second)) {
+                return false;
+            }
+            if (first.length !== second.length) {
+                return false;
+            }
+            let count = 0;
+            for (let i = 0; i < first.length; i++) {
+                if (deepComp(first[i], second[i])) {
+                    count += 1;
+                }
+            }
+            return count === first.length;
+        }
+        if (typeof first === 'object') {
+            let firstKeys = Object.keys(first);
+            let secondKeys = Object.keys(second);
+            if (firstKeys.length !== secondKeys.length) {
+                return false;
+            }
+            if (!firstKeys.every(function (key) {
+                return second.hasOwnProperty(key);
+            })) {
+                return false;
+            }
+            return firstKeys.every(function (key) {
+                return deepComp(first[key], second[key]);
+            });
+        }
+        return false;
+    }
+
+    function testDeepComp(tests) {
+        console.log(`Глубокое сравнение`);
+        let count = 0
+        let length = tests.length
+        for (let i = 0; i < length; i++) {
+            let res = deepComp(tests[i].first, tests[i].second);
+            if (res === tests[i].res) {
+                count++;
+            } else {
+                console.log('Тест: ', tests[i], ' НЕ ПРОЙДЕН');
+            }
+        }
+        return `${count} из ${length} тестов пройдено`;
+    }
+
+    let H1 = {a: 5, b: {b1: 6, b2: 7}};
+    let H2 = {b: {b1: 6, b2: 7}, a: 5};
+    let H3 = {a: 5, b: {b1: 6}};
+    let H4 = {a: 5, b: {b1: 66, b2: 7}};
+    let H5 = {a: 5, b: {b1: 6, b2: 7, b3: 8}};
+    let H6 = {a: null, b: undefined, c: Number.NaN};
+    let H7 = {c: Number.NaN, b: undefined, a: null};
+    let H8 = {a: 5, b: 6};
+    let H9 = {c: 5, d: 6};
+    let H10 = {a: 5};
+    let A1 = [5, 7];
+    let A2 = [5, 5, 7];
+    let A3 = [5, 8, 7];
+    let tests = [
+        {id: 1, first: H1, second: H2, res: true},
+        {id: 2, first: H1, second: H3, res: false},
+        {id: 3, first: H1, second: H4, res: false},
+        {id: 4, first: H1, second: H5, res: false},
+        {id: 5, first: H6, second: H7, res: true},
+        {id: 6, first: H8, second: H9, res: false},
+        {id: 7, first: H8, second: H10, res: false},
+        {id: 8, first: null, second: H10, res: false},
+        {id: 9, first: H10, second: null, res: false},
+        {id: 10, first: null, second: null, res: true},
+        {id: 11, first: null, second: undefined, res: false},
+        {id: 12, first: 5, second: "5", res: false},
+        {id: 13, first: 5, second: H1, res: false},
+        {id: 14, first: A1, second: H1, res: false},
+        {id: 15, first: A2, second: A3, res: false},
+        {id: 16, first: {a: 5, b: undefined}, second: {a: 5, c: undefined}, res: false},
+        {id: 17, first: [5, 7], second: {0: 5, 1: 7}, res: false},
+        {id: 18, first: [5, 7], second: {0: 5, 1: 7, length: 2}, res: false},
+        {id: 19, first: "aaa", second: "bbb", res: false},
+        {id: 20, first: [10, 20], second: [10, 20], res: true},
+        {id: 21, first: [30, 40], second: [40, 30], res: false},
+        {id: 22, first: [10, [20, 30]], second: [10, [20, 30]], res: true},
+        {id: 23, first: [10, [20, 30]], second: [10, [55, 44]], res: false},
+        {id: 24, first: [10, {a: 20, b: 30}], second: [10, {b: 30, a: 20}], res: true},
+        {id: 25, first: [10, {c: 20, d: 30}], second: [10, {b: 20, a: 30}], res: false},
+    ];
+    console.log(testDeepComp(tests));
+</script>
+</body>
+</html>

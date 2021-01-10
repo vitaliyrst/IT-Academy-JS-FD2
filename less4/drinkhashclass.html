@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>drinkhashclass</title>
+</head>
+<body>
+<input type="button" value="Ввод информации о напитке" style="width: 250px" onclick="addDrink()"><br><br>
+<input type="button" value="Получение информации о напитке" style="width: 250px" onclick="getDrink()"><br><br>
+<input type="button" value="Удаление информации о напитке" style="width: 250px" onclick="deleteDrink()"><br><br>
+<input type="button" value="Перечень всех напитков" style="width: 250px" onclick="getAllDrinks()">
+<script>
+    "use strict";
+
+    class HashStorageFunc {
+        constructor() {
+            this.data = {};
+        }
+
+        addValue = function (key, value) {
+            this.data[key] = value;
+        }
+        getValue = function (key) {
+            if (key in this.data) {
+                return this.data[key];
+            }
+        }
+        deleteValue = function (key) {
+            if (key in this.data) {
+                return delete this.data[key];
+            } else {
+                return false;
+            }
+        }
+        getKeys = function () {
+            return Object.keys(this.data);
+        }
+    }
+
+    let drinkStorage = new HashStorageFunc();
+    drinkStorage.data['Дайкири'] = {'alco': 'да', 'recipe': 'ром - 50мл, лайма - 0.25 шт, сахарный сироп - 2 ч.л.'};
+    drinkStorage.data['Оазис'] = {'alco': 'да', 'recipe': 'джин - 50мл, ликер "кюрасао" - 12мл, тоник - 100мл'};
+    drinkStorage.data['Пиранья'] = {'alco': 'да', 'recipe': 'водка - 37мл, шоколадный ликер - 25мл, кола - 25мл'};
+
+    function addDrink() {
+        let drinkName = (prompt('Введите название напитка')).trim();
+        while (drinkName === null || drinkName.trim() === '') {
+            drinkName = (prompt('Введите корректное название напитка')).trim();
+        }
+        let alcoDrink = confirm('Нажмите "Да", если напиток алкогольный') ? 'да' : 'нет';
+        let recipeDrink = (prompt('Введите рецепт напитка')).trim();
+        while (recipeDrink === null || recipeDrink.trim() === '') {
+            recipeDrink = (prompt('Введите корректный рецепт напитка')).trim();
+        }
+        let res = {'alco': alcoDrink, 'recipe': recipeDrink};
+        drinkStorage.addValue(drinkName, res);
+    }
+
+    function getDrink() {
+        let drinkName = prompt('Введите название напитка');
+        let drink = drinkStorage.getValue(drinkName);
+        let drinkInfo = (drink === undefined) ? `Напитка |${drinkName}| нет в базе` : `
+        название ${drinkName}
+        алкогольный: ${drink.alco}
+        рецепт приготовления:
+        ${drink.recipe}
+        `;
+        alert(drinkInfo);
+    }
+
+    function deleteDrink() {
+        let drinkName = prompt('Напиток, который хотите удалить?');
+        drinkStorage.deleteValue(drinkName) ? alert(`Напиток |${drinkName}| удален`)
+            : alert(`Напиток |${drinkName}| не был удален, потому что его нет в базе`);
+    }
+
+    function getAllDrinks() {
+        let allDrinks = drinkStorage.getKeys();
+        let res = '';
+        allDrinks.forEach(function (key) {
+            res += key + '\n';
+        })
+        alert(res);
+    }
+</script>
+</body>
+</html>
