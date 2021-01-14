@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>calc</title>
+</head>
+<body>
+<script>
+    "use strict";
+
+    function getFormatExpression(str) {
+        let expr = str.split('');
+        let formatChars = [];
+        for (let i = 0; i < expr.length; i++) {
+            if (expr[i] === '-' && isNaN(parseFloat(expr[i - 1]))) {
+                let current = expr[i] + expr[i + 1];
+                formatChars.push(parseFloat(current));
+                i++;
+            } else if (!isNaN(parseFloat(expr[i]))) {
+                let count = 0;
+                while (!isNaN(parseFloat(expr[i + 1])) || expr[i + 1] === '.') {
+                    let current = expr[i];
+                    count += current;
+                    current = '';
+                    i++;
+                }
+                count += expr[i];
+                formatChars.push(Number(count));
+            } else {
+                formatChars.push(expr[i]);
+            }
+        }
+        return formatChars;
+    }
+
+    function calcFragment(expression) {
+        let length = expression.length;
+        if (length === 1) {
+            return expression[0];
+        }
+        for (let i = 0; i < length; i++) {
+            if (expression.includes('(')) {
+                let first = expression.indexOf('(');
+                let last = expression.indexOf(')');
+                if (expression.slice(first + 1, last).includes('(') || expression.slice(first + 1, last).includes(')')) {
+                    first = expression.indexOf('(');
+                    last = expression.lastIndexOf(')');
+                    let intermediate = expression.slice(first + 1, last);
+                    let result = calcFragment(intermediate);
+                    expression.splice(first, last - first + 1, result);
+                    return calcFragment(expression);
+                } else {
+                    let intermediate = expression.slice(first + 1, last);
+                    let result = calcFragment(intermediate);
+                    expression.splice(first, last - first + 1, result);
+                    return calcFragment(expression);
+                }
+            }
+            if (expression.includes('*') || expression.includes('/')) {
+                if (expression[i] === '*' || expression[i] === '/') {
+                    let result = (expression[i] === '*')
+                        ? expression[i - 1] * expression[i + 1]
+                        : expression[i - 1] / expression[i + 1];
+                    if (length === 3) {
+                        return result;
+                    } else {
+                        expression.splice(i - 1, 3, result);
+                        return calcFragment(expression);
+                    }
+                }
+            } else {
+                if (expression[i] === '+' || expression[i] === '-') {
+                    let result = (expression[i] === '+')
+                        ? expression[i - 1] + expression[i + 1]
+                        : expression[i - 1] - expression[i + 1];
+                    if (length === 3) {
+                        return result;
+                    } else {
+                        expression.splice(i - 1, 3, result);
+                        return calcFragment(expression);
+                    }
+                }
+            }
+        }
+    }
+
+    let str = prompt('Введите выражение').trim();
+    while (str === 'null' || str.trim() === '') {
+        str = prompt('Введите корректное выражение').trim();
+    }
+    let format = getFormatExpression(str);
+    console.log(calcFragment(format));
+
+    let tests = [
+        {Expression: '-2+4*(2+2)+7*(2+2)', result: 42},
+        {Expression: '22+16/4*(20-2*7+4)+7*(3+4)', result: 111},
+        {Expression: '2+2*2', result: 6},
+        {Expression: '-2+(2/2)', result: -1},
+        {Expression: '((-2)*2)', result: -4},
+        {Expression: '(-7*6)+5*3-(8*(-3))+1', result: -2},
+        {Expression: '5-(-2-3)', result: 10},
+        {Expression: '32*10', result: 320},
+        {Expression: '276*775/(30026-29796)', result: 930},
+        {Expression: '5+(7-2*3)*(6-4)/2', result: 6},
+        {Expression: '4+(3+1+4*(2+3))', result: 28},
+        {Expression: '20*4-(37+2*4)', result: 35},
+    ];
+
+    for (let i = 0; i < tests.length; i++) {
+        let expression = getFormatExpression(tests[i].Expression);
+        let result = calcFragment(expression);
+        if (result === tests[i].result) {
+            console.log(`Тест ${tests[i].Expression} пройден, результат ${result}`);
+        } else {
+            console.log(`Тест ${tests[i].Expression} не пройден, результат ${result}, а должен быть ${tests[i].result}`);
+        }
+    }
+
+    /*function calc(expression) {
+    let operations = [
+        {'*': (a, b) => a * b, '/': (a, b) => a / b},
+        {'+': (a, b) => a + b, '-': (a, b) => a - b}
+    ];
+    let newCalc = [];
+    let currentOp;
+    for (let i = 0; i < operations.length; i++) {
+        for (let j = 0; j < expression.length; j++) {
+            if (expression[j] === '(') {
+                let first = expression.indexOf('(');
+                let last = expression.indexOf(')');
+                let val = expression.slice(first + 1, last);
+                let res = calc(val);
+                expression.splice(first, last, res);
+                return  calc(expression);
+            }
+            if (operations[i][expression[j]]) {
+                currentOp = operations[i][expression[j]];
+            } else if (currentOp) {
+                if (expression[j] === ')') {
+                    console.log('aaa')
+                    newCalc[newCalc.length - 1] = currentOp(newCalc[newCalc.length - 1], expression[j+1]);
+                } else {
+                    newCalc[newCalc.length - 1] = currentOp(newCalc[newCalc.length - 1], expression[j]);
+                }
+                currentOp = null;
+            } else {
+                
+                newCalc.push(expression[j]);
+            }
+        }
+        expression = newCalc;
+        newCalc = [];
+    }
+    console.log(expression[0]);
+    return expression[0];
+}*/
+</script>
+</body>
+</html>
