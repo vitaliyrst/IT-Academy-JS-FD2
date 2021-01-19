@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dyn Form</title>
+</head>
+<body>
+<div id="forms">
+
+</div>
+
+<script>
+    "use strict";
+
+
+    let formDef1 =
+        [
+            {label: 'Название сайта:', kind: 'longtext', name: 'sitename'},
+            {label: 'URL сайта:', kind: 'longtext', name: 'siteurl'},
+            {label: 'Посетителей в сутки:', kind: 'number', name: 'visitors'},
+            {label: 'E-mail для связи:', kind: 'shorttext', name: 'email'},
+            {
+                label: 'Рубрика каталога:', kind: 'combo', name: 'division',
+                variants: [{text: 'здоровье', value: 1}, {text: 'домашний уют', value: 2}, {
+                    text: 'бытовая техника',
+                    value: 3
+                }]
+            },
+            {
+                label: 'Размещение:', kind: 'radio', name: 'payment',
+                variants: [{text: 'бесплатное', value: 1}, {text: 'платное', value: 2}, {text: 'VIP', value: 3}]
+            },
+            {label: 'Разрешить отзывы:', kind: 'check', name: 'votes'},
+            {label: 'Описание сайта:', kind: 'memo', name: 'description'},
+            {label: 'Опубликовать:', kind: 'submit'},
+        ];
+
+    let formDef2 =
+        [
+            {label: 'Фамилия:', kind: 'longtext', name: 'lastname'},
+            {label: 'Имя:', kind: 'longtext', name: 'firstname'},
+            {label: 'Отчество:', kind: 'longtext', name: 'secondname'},
+            {label: 'Возраст:', kind: 'number', name: 'age'},
+            {label: 'Зарегистрироваться:', kind: 'submit'},
+        ];
+
+    function formCreate(data, formName, formAction, formMethod) {
+        let form = document.createElement('form');
+        form.setAttribute('name', formName);
+        form.setAttribute('action', formAction);
+        form.setAttribute('method', formMethod);
+        let table = document.createElement('table');
+
+        for (let i = 0; i < data.length; i++) {
+            let parts = data[i];
+            let tr = document.createElement('tr');
+
+            if (parts.kind === 'longtext' || parts.kind === 'shorttext') {
+                let td = document.createElement('td');
+                let td2 = document.createElement('td');
+                td.setAttribute('style', 'width : 150px');
+
+                let label = document.createElement('label');
+                label.setAttribute('for', parts.name);
+                label.textContent = parts.label;
+
+                let input = document.createElement('input');
+                input.setAttribute('id', parts.name);
+                input.setAttribute('name', parts.name);
+                input.setAttribute('type', 'text');
+                input.setAttribute('style', 'width : 200px');
+
+                td.appendChild(label);
+                td2.appendChild(input);
+                tr.appendChild(td);
+                tr.appendChild(td2);
+            }
+
+            if (parts.kind === 'number') {
+                let td = document.createElement('td');
+                let td2 = document.createElement('td');
+                td.setAttribute('style', 'width : 150px');
+
+                let label = document.createElement('label');
+                label.setAttribute('for', parts.name);
+                label.textContent = parts.label;
+
+                let input = document.createElement('input');
+                input.setAttribute('id', parts.name);
+                input.setAttribute('name', parts.name);
+                input.setAttribute('type', 'number');
+                input.setAttribute('style', 'width : 100px');
+
+                td.appendChild(label);
+                td2.appendChild(input);
+                tr.appendChild(td);
+                tr.appendChild(td2);
+            }
+            if (parts.kind === 'memo') {
+                let td = document.createElement('td');
+                let td2 = document.createElement('td');
+                td.setAttribute('style', 'width : 150px');
+
+                let label = document.createElement('label');
+                label.setAttribute('for', parts.name);
+                label.textContent = parts.label;
+
+                let textArea = document.createElement('textarea');
+                textArea.setAttribute('id', parts.name);
+                textArea.setAttribute('name', parts.name);
+                textArea.setAttribute('rows', '3');
+                textArea.setAttribute('style', 'width : 200px');
+
+                td.appendChild(label);
+                td2.appendChild(textArea);
+                tr.appendChild(td);
+                tr.appendChild(td2);
+            }
+            if (parts.kind === 'submit') {
+                let td = document.createElement('td');
+
+                let button = document.createElement('button');
+                button.setAttribute('type', 'submit');
+                button.setAttribute('name', parts.label);
+                button.setAttribute('style', 'width : 150px');
+                button.textContent = parts.label.substring(0, parts.label.length - 1);
+
+                td.appendChild(button);
+                tr.appendChild(td);
+            }
+            if (parts.kind === 'combo') {
+                let td = document.createElement('td');
+                let td2 = document.createElement('td');
+                td.setAttribute('style', 'width : 150px');
+
+                let label = document.createElement('label');
+                label.setAttribute('for', parts.name);
+                label.textContent = parts.label;
+
+                let select = document.createElement('select');
+                select.setAttribute('id', parts.name);
+                select.setAttribute('name', parts.name);
+                parts.variants.forEach(function (options) {
+                    let option = document.createElement('option');
+                    option.setAttribute('value', options.value);
+                    option.textContent = options.text;
+                    select.appendChild(option);
+                });
+
+                td.appendChild(label);
+                td2.appendChild(select);
+                tr.appendChild(td);
+                tr.appendChild(td2);
+            }
+            if (parts.kind === 'radio') {
+                let td = document.createElement('td');
+                let td2 = document.createElement('td');
+                td.setAttribute('style', 'width : 150px');
+
+                let label = document.createElement('label');
+                label.textContent = parts.label;
+
+                parts.variants.forEach(function (radio) {
+                    let input = document.createElement('input');
+                    input.setAttribute('type', 'radio');
+                    input.setAttribute('name', radio.text);
+                    input.setAttribute('value', radio.value);
+
+                    let span = document.createElement('span');
+                    span.textContent = radio.text
+
+                    td2.appendChild(input);
+                    td2.appendChild(span);
+                });
+
+                td.appendChild(label);
+                tr.appendChild(td);
+                tr.appendChild(td2);
+            }
+            if (parts.kind === 'check') {
+                let td = document.createElement('td');
+                let td2 = document.createElement('td');
+                td.setAttribute('style', 'width : 150px');
+
+                let label = document.createElement('label');
+                label.setAttribute('for', parts.name);
+                label.textContent = parts.label;
+
+                let input = document.createElement('input');
+                input.setAttribute('id', parts.name);
+                input.setAttribute('name', parts.name);
+                input.setAttribute('type', 'checkbox');
+
+                td.appendChild(label);
+                td2.appendChild(input);
+                tr.appendChild(td);
+                tr.appendChild(td2);
+            }
+            table.appendChild(tr);
+        }
+        form.appendChild(table);
+        let hr = document.createElement('hr');
+        form.appendChild(hr);
+        let div = document.getElementById('forms');
+        div.appendChild(form);
+    }
+
+    let form1 = document.createElement('form');
+    formCreate(formDef1, 'form1', 'https://fe.it-academy.by/TestForm.php', 'post')
+
+    let form2 = document.createElement('form');
+    formCreate(formDef2, 'form2', 'https://fe.it-academy.by/TestForm.php', 'post');
+</script>
+</body>
+</html>
