@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>formatNumber</title>
+</head>
+<body>
+<script>
+    /*B7+
+    Написать чистую функцию для форматирования числа заданной по форматной строке, например:
+    console.log( formatNumber(2.3,"# ### ###.##") );
+    выдаёт "2.30"
+    console.log( formatNumber(12345.368,"# ### ###.##") );
+    выдаёт "12 345.37"
+    В форматной строке символ "#":
+    - после запятой кодирует обязательную цифру
+        , т.е. после запятой в данном примере должно быть ровно два знака, в любом числе;
+    - до запятой кодирует НЕобязательную цифру
+        , т.е. до запятой в данном примере должно быть столько знаков, сколько требуется для отображения целой части числа.*/
+
+    "use strict";
+
+    function formatNumber(number, pattern) {
+        let partsPattern = pattern.split('.');
+        let partsNumber = String(number).split('.');
+
+        let firstNumberPart = partsNumber[0].split('').reverse();
+        let firstPatternPart = partsPattern[0].split(' ').reverse();
+        let result = [];
+        let item = 0;
+        for (let i = 0; i < firstPatternPart.length; i++) {
+            let partLength = firstPatternPart[i].length;
+            for (let j = 0; j < partLength; j++) {
+                if (firstNumberPart[item]) {
+                    result.push(firstNumberPart[item]);
+                    item += 1;
+                }
+            }
+            if (firstNumberPart[item]) {
+                result.push(' ');
+            }
+        }
+
+        let fixedNumber = Number(number).toFixed(partsPattern[1].length);
+        let remainder = fixedNumber.slice(-partsPattern[1].length);
+
+        return result.reverse().join('') + '.' + remainder;
+    }
+
+    console.log(formatNumber(2.3, "# ### ###.##"));
+    console.log(formatNumber(12345.368, "# ### ###.##"));
+    console.log(formatNumber(12345.368, "# ### ###.#####"));
+    console.log(formatNumber(368, "# ### ###.#####"));
+    console.log(formatNumber(1312345.368, "# ### ###.#####"));
+</script>
+</body>
+</html>

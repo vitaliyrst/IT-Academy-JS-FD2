@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>chess</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <h1>Chess</h1>
+</header>
+
+<main>
+    <section class="desk-builder">
+        <div class="desk-size">
+            <label for="select-size">Выберите размер доски</label><br>
+            <select id="select-size" class="select-size">
+                <option disabled selected>Выберите доску...</option>
+                <option value="4">4x4</option>
+                <option value="6">6x6</option>
+                <option value="8">8x8</option>
+                <option value="10">10x10</option>
+                <option value="12">12x12</option>
+            </select>
+        </div>
+
+        <div class="desk-solution">
+            <label for="select-solution">Выберите решение, которое хотите построить</label><br>
+            <select id="select-solution" class="select-solution"></select>
+        </div>
+    </section>
+
+    <section class="renderer">
+    </section>
+</main>
+
+<script>
+    "use strict";
+
+    // Поиск возможных решений
+    function searchSolutions(boardSide) {
+        let figures = new Array(boardSide);
+        let possibleSolutions = [];
+
+        //Функция проверки на стоящего рядом
+        function check(figureNumber, row) {
+            for (let i = 0; i < figureNumber; i++) {
+                let Nearby = figures[i];
+                if (Nearby === row // если в одном ряду
+                    || Nearby === row - (figureNumber - i) // если по диагонали
+                    || Nearby === row + (figureNumber - i)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        //Функция поиска
+        function search(figureNumber) {
+            if (figureNumber === boardSide) {
+                let solutionNumber = possibleSolutions.length;
+                possibleSolutions[solutionNumber] = [];
+                for (let i = 0; i < boardSide; i++) {
+                    possibleSolutions[solutionNumber].push(figures[i]);
+                }
+            } else {
+                for (let row = 0; row < boardSide; row++) {
+                    //Если проверка вернула false проверяем на следующий ряд
+                    //Если проверка вернула true запускаем следующее число
+                    if (check(figureNumber, row)) {
+                        figures[figureNumber] = row;
+                        //Если ничего не вернулось, то из стэка удаляется вызов и продолжается предыдущий вызов
+                        search(figureNumber + 1);
+                    }
+                }
+            }
+        }
+
+        search(0);
+        return possibleSolutions;
+    }
+
+    // Функция добавляет список решений в select в виде option
+    function listSolutions(solutions) {
+        let select = document.getElementById('select-solution');
+        let solutionLength = solutions.length;
+
+        let disabledOption = document.createElement('option');
+        disabledOption.disabled = true;
+        disabledOption.selected = true;
+        disabledOption.innerText = 'Выберите вариант решения...';
+        select.appendChild(disabledOption);
+
+        for (let i = 0; i < solutionLength; i++) {
+            let option = document.createElement('option');
+            option.setAttribute('value', solutions[i]);
+            option.innerText = solutions[i];
+            select.appendChild(option);
+        }
+    }
+
+    // Функция строит доску с решением
+    function buildDesk(solution) {
+        let solutionArr = solution.split(',');
+        let solutionLength = solutionArr.length;
+        let countColor = 0;
+
+        let section = document.getElementsByClassName('renderer')[0];
+        let table = document.createElement('table');
+        table.classList.add('chess-desk');
+
+        for (let row = 0; row < solutionLength; row++) {
+            let tr = document.createElement('tr');
+            tr.classList.add('row');
+            for (let figureNumber = 0; figureNumber < solutionLength; figureNumber++) {
+                let td = document.createElement('td');
+                if (countColor % 2 !== 0) {
+                    td.setAttribute('style', 'background-color: #cd853f');
+                }
+                if (Number(solutionArr[row]) === figureNumber) {
+                    td.innerHTML = '&#9813;';
+                    td.setAttribute('row-position', `${row}`);
+                    td.setAttribute('figure-position', `${figureNumber}`);
+                    // Вешаем события на td с ферзями, чтобы раскрасить их бой
+                    td.addEventListener('mouseover', onMouseOverChangeColorHandler);
+                    td.addEventListener('mouseout', onMouseOutChangeColorHandler);
+                } else {
+                    td.innerText = ' ';
+                }
+                tr.appendChild(td);
+                countColor++;
+            }
+            countColor++;
+            table.appendChild(tr);
+        }
+        section.appendChild(table);
+    }
+
+    // Обработчик для выбора размера доски, чтобы построить список решений
+    let selectSize = document.getElementById('select-size');
+    selectSize.addEventListener('change', onChangeSizeHandler);
+
+    function onChangeSizeHandler(eo) {
+        // Удаляем старую доску
+        let table = document.getElementsByClassName('renderer')[0];
+        table.innerHTML = '';
+        // Удаляем старый список решений
+        let selectSolution = document.getElementById('select-solution');
+        selectSolution.innerHTML = '';
+
+        let index = eo.target.options.selectedIndex;
+        let boardSide = Number(eo.target.options[index].value);
+        // Получаем решения
+        let solutions = searchSolutions(boardSide);
+        // Строим список
+        listSolutions(solutions);
+    }
+
+    // Обработчик для построения доски по выбранному решению
+    let selectSolution = document.getElementById('select-solution');
+    selectSolution.addEventListener('change', onChangeSolutionHandler);
+
+    function onChangeSolutionHandler(eo) {
+        // Удаляем старую доску
+        let table = document.getElementsByClassName('renderer')[0];
+        table.innerHTML = '';
+
+        let index = eo.target.options.selectedIndex;
+        let solution = eo.target.options[index].value;
+        // Строим доску
+        buildDesk(solution);
+    }
+
+
+    // Обработчик для раскрашивания клеток при наведении
+    function onMouseOverChangeColorHandler(eo) {
+        let rowPosition = Number(eo.target.getAttribute('row-position'));
+        let figurePosition = Number(eo.target.getAttribute('figure-position'));
+
+        let tr = document.getElementsByClassName('row');
+        let trLength = tr.length
+
+        let leftStartPoint = figurePosition - rowPosition; // старт для левой диагонали
+        let rightStartPoint = figurePosition + rowPosition; // старт для правой диагонали
+
+        for (let i = 0; i < trLength; i++) {
+            let tdArr = tr[i].children;
+            let tdArrLength = tdArr.length
+
+            for (let k = 0; k < tdArrLength; k++) {
+                if (rowPosition === i && k === figurePosition) {
+                    continue;
+                }
+                if (k === leftStartPoint + i) {
+                    tdArr[k].setAttribute('style', 'background-color: #8fbc8f');
+                }
+                if (k === rightStartPoint - i) {
+                    tdArr[k].setAttribute('style', 'background-color: #8fbc8f');
+                }
+                if (i === rowPosition) {
+                    tdArr[k].setAttribute('style', 'background-color: #add8e6');
+                }
+                if (k === figurePosition) {
+                    tdArr[k].setAttribute('style', 'background-color: #add8e6');
+                }
+            }
+        }
+    }
+
+    // Обработчик для приведения клеток в первичное состояние
+    function onMouseOutChangeColorHandler() {
+        let tr = document.getElementsByClassName('row');
+        let trLength = tr.length
+        let countColor = 0;
+
+        for (let i = 0; i < trLength; i++) {
+            let tdArr = tr[i].children;
+            let tdArrLength = tdArr.length
+
+            for (let k = 0; k < tdArrLength; k++) {
+                if (countColor % 2 !== 0) {
+                    tdArr[k].setAttribute('style', 'background-color: #cd853f');
+                } else {
+                    tdArr[k].setAttribute('style', 'background-color: #ffffff');
+                }
+                countColor++;
+            }
+            countColor++;
+        }
+    }
+</script>
+</body>
+</html>
