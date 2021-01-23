@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>palindromerec</title>
+</head>
+<body>
+<script>
+    /*A4+
+    Написать чистую функцию, проверяющую, что переданная ей фраза является палиндромом, с использованием рекурсии.
+        Массивы при решении не использовать.
+        При проверке должны игнорироваться:
+        - регистр букв;
+    - пробелы;
+    - знаки препинания;
+    - мягкие и твёрдые знаки;
+    - разница между буквами "е" и "ё".
+        Внимание: не надо строку очищать от игнорируемых символов с помощью рекурсии; рекурсию нужно применять только
+    при проверке, является ли очищенная строка палиндромом.*/
+
+    "use strict";
+
+    let text = prompt('Введите текст');
+    while (text === null) {
+        text = prompt('Введите корректную фразу');
+    }
+
+    function isPalindrome(text) {
+        let formatText = text.toLowerCase()
+            .replace(/[^а-яё]|[ъь]/g, '')
+            .replace(/ё/g, 'е');
+
+        return (function palindrome(text) {
+            if (text.length < 2) {
+                return true;
+            }
+            if (text[0] === text[text.length - 1]) {
+                return palindrome(text.slice(1, -1));
+            }
+            return false;
+        })(formatText);
+    }
+
+    console.log(isPalindrome(text));
+</script>
+</body>
+</html>

@@ -12,38 +12,12 @@
         return Math.floor(Math.random() * (m - n + 1)) + n;
     }
 
-    /*
-        function mood(colorsCount) {
-            let colors = ['', 'красный', 'оранжевый', 'жёлтый', 'зелёный', 'голубой', 'синий', 'фиолетовый'];
-            let usedColors = {};
-            let colorsLength = colors.length - 1;
-            if (colorsCount > colorsLength) {
-                console.log(`Цветов должно быть не более ${colorsLength}, Вы ввели ${colorsCount}`);
-                return;
-            }
-            console.log('цветов: ' + colorsCount);
-            for (let i = 1; i <= colorsCount; i++) {
-                for (let j = 1; j <= colorsLength; j++) {
-                    let n = randomDiap(1, 7);
-                    if (n in usedColors) {
-                        continue;
-                    } else {
-                        usedColors[n] = colors[n];
-                        console.log(usedColors[n]);
-                    }
-                    if (Object.keys(usedColors).length === colorsCount) {
-                        return;
-                    }
-                }
-            }
-        }
-    */
-
     function mood(colorsCount) {
         let colors = ['', 'красный', 'оранжевый', 'жёлтый', 'зелёный', 'голубой', 'синий', 'фиолетовый'];
         let usedColors = {};
         console.log('цветов: ' + colorsCount);
         for (let i = 1; i <= colorsCount; i++) {
+            let n = randomDiap(1, 7);
             while (n in usedColors) {
                 let n = randomDiap(1, 7);
                 if (n in usedColors) {
