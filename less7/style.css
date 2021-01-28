@@ -1,0 +1,77 @@
+body {
+    margin: 0;
+    padding: 0;
+
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    line-height: 22px;
+}
+
+table {
+    table-layout: fixed;
+}
+
+table td:nth-of-type(2) {
+    width: 600px;
+}
+
+td {
+    padding: 5px;
+}
+
+input {
+    font: inherit;
+
+    border: 2px solid black;
+    border-radius: 10px;
+    outline: none;
+}
+
+button {
+    font: inherit;
+
+    border: 2px solid black;
+    border-radius: 10px;
+    outline: none;
+}
+
+span {
+    padding-left: 5px;
+
+    font-size: 12px;
+    font-style: italic;
+    color: red;
+}
+
+.long-text {
+    width: 250px;
+}
+
+.short-text {
+    width: 100px;
+}
+
+.rubric {
+    font: inherit;
+
+    border: 2px solid black;
+    border-radius: 10px;
+    outline: none;
+
+    width: 200px;
+}
+
+.text-area {
+    font: inherit;
+
+    width: 425px;
+
+    border: 2px solid black;
+    border-radius: 10px;
+    outline: none;
+}
+
+.reviews {
+    width: 20px;
+    height: 20px;
+}

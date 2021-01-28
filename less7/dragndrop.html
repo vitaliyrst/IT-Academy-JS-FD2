@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>dragndrop</title>
+</head>
+<body>
+<div class="images">
+    <img src="https://mobimg.b-cdn.net/pic/v2/gallery/111x185/volki-zhivotnye-82.jpg">
+    <img src="https://mobimg.b-cdn.net/pic/v2/gallery/111x185/arhitektura-derevya-doma-goroda-more-palmy-pejzazh-1541.jpg">
+    <img src="https://mobimg.b-cdn.net/pic/v2/gallery/111x185/derevya-doma-mosty-pejzazh-reka-18.jpg">
+    <img src="https://mobimg.b-cdn.net/pic/v2/gallery/111x185/zhivotnye-10.jpg">
+    <img src="https://mobimg.b-cdn.net/pic/v2/gallery/111x185/koty-zhivotnye-17.jpg">
+    <img src="https://mobimg.b-cdn.net/pic/v2/gallery/111x185/avto-dorogi-porsche-48.jpg">
+    <img src="https://mobimg.b-cdn.net/pic/v2/gallery/111x185/derevya-pejzazh-rasteniya-voda-22.jpg">
+    <img src="https://mobimg.b-cdn.net/pic/v2/gallery/111x185/sobaki-zhivotnye-9.jpg">
+    <img src="https://mobimg.b-cdn.net/pic/v2/gallery/111x185/koty-zhivotnye-17.jpg">
+    <img src="https://mobimg.b-cdn.net/pic/v2/gallery/111x185/avto-dorogi-porsche-48.jpg">
+    <img src="https://mobimg.b-cdn.net/pic/v2/gallery/111x185/derevya-pejzazh-rasteniya-voda-22.jpg">
+    <img src="https://mobimg.b-cdn.net/pic/v2/gallery/111x185/volki-zhivotnye-82.jpg">
+    <img src="https://mobimg.b-cdn.net/pic/v2/gallery/111x185/arhitektura-derevya-doma-goroda-more-palmy-pejzazh-1541.jpg">
+    <img src="https://mobimg.b-cdn.net/pic/v2/gallery/111x185/derevya-doma-mosty-pejzazh-reka-18.jpg">
+    <img src="https://mobimg.b-cdn.net/pic/v2/gallery/111x185/avto-dorogi-porsche-48.jpg">
+    <img src="https://mobimg.b-cdn.net/pic/v2/gallery/111x185/derevya-pejzazh-rasteniya-voda-22.jpg">
+    <img src="https://mobimg.b-cdn.net/pic/v2/gallery/111x185/sobaki-zhivotnye-9.jpg">
+    <img src="https://mobimg.b-cdn.net/pic/v2/gallery/111x185/koty-zhivotnye-17.jpg">
+</div>
+<script>
+    "use strict";
+
+    window.addEventListener('load', work);
+
+    function work() {
+        let div = document.getElementsByClassName('images')[0];
+        let images = div.children;
+
+        // Добавляем всем картинкам position absolute и возвращаем их в исходное положение
+        function getAbsoluteImages() {
+            // Отступ между картинками
+            const indention = 10;
+
+            // Количество картинок которое можно расположить в одном ряду
+            const rowImage = Math.floor(div.offsetWidth / (images[0].offsetWidth + indention));
+
+            // Счетчик длины ряда картинок
+            let counterRowLength = 0;
+
+            // Начальное смещение
+            let offsetX = indention;
+            let offsetY = indention;
+
+            for (let i = 0; i < images.length; i++) {
+
+                let currentImg = images[i];
+                let imgWidth = currentImg.offsetWidth;
+                let imgHeight = currentImg.offsetHeight;
+
+                if (counterRowLength === rowImage) {
+                    offsetY += imgHeight + indention;
+                    offsetX = indention;
+                    counterRowLength = 0;
+                }
+
+                currentImg.style.position = 'absolute';
+
+                if (counterRowLength > 0) {
+                    let previousImg = images[i - 1];
+                    // Смещение для каждой следующей картинки
+                    offsetX = previousImg.getBoundingClientRect().left + imgWidth + indention;
+
+                    currentImg.style.left = offsetX + 'px';
+                    currentImg.style.top = offsetY + 'px';
+                } else {
+                    currentImg.style.left = offsetX + 'px';
+                    currentImg.style.top = offsetY + 'px';
+                }
+                counterRowLength++;
+            }
+        }
+
+        getAbsoluteImages();
+
+        document.addEventListener('mousedown', eo => {
+            let img = eo.target;
+
+            // Разница между верхним левым углом изображения и курсором
+            let offsetX = eo.clientX - img.getBoundingClientRect().left;
+            let offsetY = eo.clientY - img.getBoundingClientRect().top;
+
+            // Ставим изображение выше остальных
+            img.style.zIndex = '10';
+
+
+            document.addEventListener('mousemove', move);
+
+            function move(eo) {
+                // Отнимаем разницу, чтобы изображение оставалось там, кликнули
+                img.style.left = eo.pageX - offsetX + 'px';
+                img.style.top = eo.pageY - offsetY + 'px';
+            }
+
+            document.addEventListener('mouseup', eo => {
+                // При отпускании клавиши мыши, убираем обработчик mousemove
+                document.removeEventListener('mousemove', move);
+                img.style.zIndex = '0';
+            });
+        });
+
+        // Убираем crossed circle
+        document.addEventListener('dragstart', eo => {
+            eo.preventDefault();
+        });
+    }
+</script>
+</body>
+</html>
