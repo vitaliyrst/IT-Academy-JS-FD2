@@ -35,50 +35,18 @@
         let images = div.children;
 
         // Добавляем всем картинкам position absolute и возвращаем их в исходное положение
-        function getAbsoluteImages() {
-            // Отступ между картинками
-            const indention = 10;
-
-            // Количество картинок которое можно расположить в одном ряду
-            const rowImage = Math.floor(div.offsetWidth / (images[0].offsetWidth + indention));
-
-            // Счетчик длины ряда картинок
-            let counterRowLength = 0;
-
-            // Начальное смещение
-            let offsetX = indention;
-            let offsetY = indention;
-
-            for (let i = 0; i < images.length; i++) {
-
+            for (let i = images.length - 1; 0 <= i ; i--) {
                 let currentImg = images[i];
-                let imgWidth = currentImg.offsetWidth;
-                let imgHeight = currentImg.offsetHeight;
 
-                if (counterRowLength === rowImage) {
-                    offsetY += imgHeight + indention;
-                    offsetX = indention;
-                    counterRowLength = 0;
-                }
+                let startX = currentImg.getBoundingClientRect().x;
+                let startY = currentImg.getBoundingClientRect().y;
 
+                currentImg.style.left = startX + 'px';
+                currentImg.style.top = startY + 'px';
                 currentImg.style.position = 'absolute';
-
-                if (counterRowLength > 0) {
-                    let previousImg = images[i - 1];
-                    // Смещение для каждой следующей картинки
-                    offsetX = previousImg.getBoundingClientRect().left + imgWidth + indention;
-
-                    currentImg.style.left = offsetX + 'px';
-                    currentImg.style.top = offsetY + 'px';
-                } else {
-                    currentImg.style.left = offsetX + 'px';
-                    currentImg.style.top = offsetY + 'px';
-                }
-                counterRowLength++;
             }
-        }
 
-        getAbsoluteImages();
+        let zIndex = 1;
 
         document.addEventListener('mousedown', eo => {
             let img = eo.target;
@@ -86,10 +54,10 @@
             // Разница между верхним левым углом изображения и курсором
             let offsetX = eo.clientX - img.getBoundingClientRect().left;
             let offsetY = eo.clientY - img.getBoundingClientRect().top;
+            console.log(offsetX)
 
             // Ставим изображение выше остальных
-            img.style.zIndex = '10';
-
+            img.style.zIndex = String(zIndex++);
 
             document.addEventListener('mousemove', move);
 
@@ -102,7 +70,6 @@
             document.addEventListener('mouseup', eo => {
                 // При отпускании клавиши мыши, убираем обработчик mousemove
                 document.removeEventListener('mousemove', move);
-                img.style.zIndex = '0';
             });
         });
 

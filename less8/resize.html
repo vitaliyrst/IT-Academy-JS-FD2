@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>resize</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="image" class="image">
+    <div id="top-left" class="tl control"></div>
+    <div id="top-middle" class="tm control"></div>
+    <div id="top-right" class="tr control"></div>
+    <div id="middle-left" class="ml control"></div>
+    <div id="middle-right" class="mr control"></div>
+    <div id="bottom-left" class="bl control"></div>
+    <div id="bottom-middle" class="bm control"></div>
+    <div id="bottom-right" class="br control"></div>
+</div>
+
+<script>
+    "use strict";
+
+    let img = document.querySelector('.image');
+    let entryData = {};
+
+    document.addEventListener('mousedown', eo => {
+        eo.preventDefault();
+
+        // Входные параметры
+        entryData.action = eo.target.id; // текущее действие
+        entryData.offsetWidth = img.offsetWidth; // 400px
+        entryData.offsetHeight = img.offsetHeight; // 200px
+        entryData.offsetTop = img.offsetTop; // 200px
+        entryData.offsetLeft = img.offsetLeft; // 200px
+        entryData.diffX = eo.clientX - img.offsetLeft; // разница между тем где кликнули и отступом до картинки по X
+        entryData.diffY = eo.clientY - img.offsetTop; // разница между тем где кликнули и отступом до картинки по Y
+        entryData.proportionWidth = img.offsetWidth / img.offsetHeight; // пропорция
+        entryData.proportionHeight = (img.offsetWidth / img.offsetHeight) / 2;
+
+        document.addEventListener('mousemove', move);
+
+        document.addEventListener('mouseup', () => {
+            document.removeEventListener('mousemove', move);
+        });
+    });
+
+    function move(eo) {
+        if (entryData.action) {
+
+            // Смещение мыши при движении X Y относительно входных параметров
+            let offsetMouseLeft = eo.clientX - entryData.offsetLeft;
+            let offsetMouseRight = eo.clientX - (entryData.offsetLeft + entryData.offsetWidth);
+            let offsetMouseTop = eo.clientY - entryData.offsetTop;
+            let offsetMouseDown = eo.clientY - (entryData.offsetTop + entryData.offsetHeight);
+
+            // Движение картинки по экрану
+            if (entryData.action === 'image') {
+                img.style.left = eo.pageX - entryData.diffX + 'px';
+                img.style.top = eo.pageY - entryData.diffY + 'px';
+            }
+
+            // Верхний левый управляющий элемент
+            if (entryData.action === 'top-left') {
+                img.style.height = entryData.offsetHeight - offsetMouseTop + 'px';
+                img.style.top = (entryData.offsetTop + entryData.offsetHeight) - img.offsetHeight + 'px';
+
+                img.style.width = img.offsetHeight * entryData.proportionWidth + 'px';
+                img.style.left = (entryData.offsetLeft + entryData.offsetWidth) - img.offsetWidth + 'px';
+
+                // Обратная сторона
+                if (eo.clientY >= entryData.offsetTop + entryData.offsetHeight &&
+                    eo.clientX >= entryData.offsetLeft + entryData.offsetWidth) {
+
+                    img.style.height = offsetMouseDown + 'px';
+                    img.style.top = entryData.offsetTop + entryData.offsetHeight + 'px';
+
+                    img.style.width = img.offsetHeight * entryData.proportionWidth + 'px';
+                    img.style.left = entryData.offsetLeft + entryData.offsetWidth + 'px';
+                }
+            }
+
+            // Верхний средний управляющий элемент
+            if (entryData.action === 'top-middle') {
+                img.style.height = entryData.offsetHeight - offsetMouseTop + 'px';
+                img.style.top = entryData.offsetTop + offsetMouseTop + 'px';
+
+                // Обратная сторона
+                if (eo.clientY >= entryData.offsetTop + entryData.offsetHeight) {
+                    img.style.height = offsetMouseTop - entryData.offsetHeight + 'px';
+                    img.style.top = entryData.offsetTop + entryData.offsetHeight + 'px';
+                }
+            }
+
+            // Верхний правый управляющий элемент
+            if (entryData.action === 'top-right') {
+                img.style.width = img.offsetHeight / (entryData.offsetHeight / entryData.offsetWidth) + 'px';
+
+                img.style.height = entryData.offsetHeight - offsetMouseTop + 'px';
+                img.style.top = entryData.offsetTop + offsetMouseTop + 'px';
+
+                // Обратная сторона
+                if (eo.clientY >= entryData.offsetTop + entryData.offsetHeight &&
+                    eo.clientX <= entryData.offsetLeft) {
+                    img.style.width = -offsetMouseRight - entryData.offsetWidth + 'px';
+                    img.style.left = offsetMouseRight + entryData.offsetWidth + entryData.offsetLeft + 'px';
+
+                    img.style.height = img.offsetWidth / entryData.proportionWidth + 'px';
+                    img.style.top = entryData.offsetTop + entryData.offsetHeight + 'px';
+                }
+            }
+
+            // Средний левый управляющий элемент
+            if (entryData.action === 'middle-left') {
+                img.style.height = entryData.offsetHeight + 'px';
+                img.style.top = entryData.offsetTop + 'px';
+                img.style.width = entryData.offsetWidth - offsetMouseLeft + 'px';
+                img.style.left = entryData.offsetLeft + offsetMouseLeft + 'px';
+
+                // Обратная сторона
+                if (eo.clientX >= entryData.offsetLeft + entryData.offsetWidth) {
+                    img.style.width = offsetMouseLeft - entryData.offsetWidth + 'px';
+                    img.style.left = entryData.offsetLeft + entryData.offsetWidth + 'px';
+                    img.style.height = entryData.offsetHeight + 'px';
+                    img.style.top = entryData.offsetTop + 'px';
+                }
+            }
+
+            // Средний правый управляющий элемент
+            if (entryData.action === 'middle-right') {
+                img.style.width = offsetMouseRight + entryData.offsetWidth + 'px';
+
+                // Обратная сторона
+                if (eo.clientX <= entryData.offsetLeft) {
+                    img.style.width = -offsetMouseRight - entryData.offsetWidth + 'px';
+                    img.style.left = offsetMouseRight + entryData.offsetWidth + entryData.offsetLeft + 'px';
+                }
+            }
+
+            // Нижний левый управляющий элемент
+            if (entryData.action === 'bottom-left') {
+
+                img.style.width = entryData.offsetWidth - offsetMouseLeft + 'px';
+                img.style.left = entryData.offsetLeft + offsetMouseLeft + 'px';
+                img.style.height = img.offsetWidth / entryData.proportionWidth + 'px';
+
+                // Обратная сторона
+                if (eo.clientY <= entryData.offsetTop && eo.clientX >= entryData.offsetLeft + entryData.offsetWidth) {
+                    img.style.height = -offsetMouseDown - entryData.offsetHeight + 'px';
+                    img.style.top = offsetMouseDown + entryData.offsetHeight + entryData.offsetTop + 'px';
+
+                    img.style.width = img.offsetHeight * entryData.proportionWidth + 'px';
+                    img.style.left = entryData.offsetLeft + entryData.offsetWidth + 'px';
+                }
+            }
+
+            // Нижний средний управляющий элемент
+            if (entryData.action === 'bottom-middle') {
+                img.style.height = offsetMouseDown + entryData.offsetHeight + 'px';
+
+                // Обратная сторона
+                if (eo.clientY <= entryData.offsetTop) {
+                    img.style.height = -offsetMouseDown - entryData.offsetHeight + 'px';
+                    img.style.top = offsetMouseDown + entryData.offsetHeight + entryData.offsetTop + 'px';
+                }
+            }
+
+            // Нижний правый управляющий элемент
+            if (entryData.action === 'bottom-right') {
+                    img.style.height = img.offsetWidth / entryData.proportionWidth + 'px';
+                    img.style.width = offsetMouseLeft - entryData.proportionWidth + 'px';
+            }
+
+            // Обратная сторона
+            if (eo.clientY <= entryData.offsetTop && eo.clientX <= entryData.offsetLeft) {
+                img.style.height = img.offsetWidth / entryData.proportionWidth + 'px';
+                img.style.top = entryData.offsetTop - img.offsetHeight + 'px';
+
+                img.style.width = -offsetMouseRight - entryData.offsetWidth + 'px';
+                img.style.left = entryData.offsetLeft - img.offsetWidth + 'px';
+            }
+        }
+    }
+</script>
+</body>
+</html>

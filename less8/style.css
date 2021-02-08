@@ -1,0 +1,90 @@
+.image {
+    width: 400px;
+    height: 200px;
+
+    background-image: url("img.jpg");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+
+    position: absolute;
+
+    top: 200px;
+    left: 200px;
+}
+
+.control {
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    background-color: lightskyblue;
+}
+
+.control :hover {
+    background-color: black;
+}
+
+.tl {
+    top: 0;
+    left: 0;
+    transform: translate(-50%, -50%);
+
+    cursor: nw-resize;
+}
+
+.tm {
+    top: 0;
+    left: 50%;
+    right: 50%;
+    transform: translate(-50%, -50%);
+
+    cursor: n-resize;
+}
+
+.tr {
+    top: 0;
+    right: 0;
+    transform: translate(50%, -50%);
+
+    cursor: ne-resize;
+}
+
+.ml {
+    top: 50%;
+    left: 0;
+    transform: translate(-50%, -50%);
+
+    cursor: w-resize;
+}
+
+.mr {
+    top: 50%;
+    right: 0;
+    transform: translate(50%, -50%);
+
+    cursor: e-resize;
+}
+
+.bl {
+    bottom: 0;
+    left: 0;
+    transform: translate(-50%, 50%);
+
+    cursor: sw-resize;
+}
+
+.bm {
+    bottom: 0;
+    left: 50%;
+    right: 50%;
+    transform: translate(-50%, 50%);
+
+    cursor: s-resize;
+}
+
+.br {
+bottom: 0;
+    right: 0;
+    transform: translate(50%, 50%);
+
+    cursor: se-resize;
+}
