@@ -96,9 +96,12 @@
         arrow.style.opacity = '90%';
 
         arrow.style.position = 'absolute';
+
+        console.log(arrowLength, arrowDepth)
         arrow.style.transformOrigin = arrowLength/2 + 'px ' + arrowDepth * 0.92 + 'px';
 
         CLOCK.append(arrow);
+
         return arrow;
     }
 

@@ -2,9 +2,200 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>clock_svg</title>
 </head>
 <body>
+<div class="container">
 
+</div>
+<script>
+    "use strict";
+
+    let container = document.querySelector('.container');
+    // Размер часов
+    let containerCenterX = 300;
+    let containerCenterY = 300;
+
+    // Создание контейнера для часов
+    let clockContainer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    clockContainer.setAttribute('id', 'clock-container');
+    clockContainer.setAttribute('width', containerCenterX);
+    clockContainer.setAttribute('height', containerCenterY);
+    container.append(clockContainer);
+
+    const CLOCK_CENTER_X = String(clockContainer.clientWidth / 2);
+    const CLOCK_CENTER_Y = String(clockContainer.clientHeight / 2);
+    const CLOCK_RADIUS = String(clockContainer.clientHeight / 2);
+
+    // Создание часов
+    function createClock() {
+        let clock = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        clock.setAttribute('id', 'clock');
+
+        clock.setAttribute('cx', CLOCK_CENTER_X);
+        clock.setAttribute('cy', CLOCK_CENTER_Y);
+        clock.setAttribute('r', CLOCK_RADIUS);
+
+        clock.setAttribute('fill', '#fccb66');
+
+        clockContainer.append(clock);
+        return clock;
+    }
+
+    const CLOCK = createClock();
+    const CLOCK_SIZE = CLOCK.getBoundingClientRect();
+    const CLOCK_SIDE = CLOCK_SIZE.width;
+    const CLOCK_RADIUS_X = CLOCK_SIZE.width / 2;
+    const CLOCK_RADIUS_Y = CLOCK_SIZE.height / 2;
+
+    const DIAL_SIDE_PROPORTION = String(CLOCK_SIDE / 20);
+    const DIAL_RADIUS_PROPORTION = String(CLOCK_RADIUS_X * 0.85);
+
+    const SECONDS_HEIGHT = String(CLOCK_RADIUS_X * 0.1);
+    const SECONDS_STROKE = String(CLOCK_RADIUS_X * 0.02);
+
+    const MINUTES_HEIGHT = String(CLOCK_RADIUS_X * 0.2);
+    const MINUTES_STROKE = String(CLOCK_RADIUS_X * 0.04);
+
+    const HOURS_HEIGHT = String(CLOCK_RADIUS_X * 0.5);
+    const HOURS_STROKE = String(CLOCK_RADIUS_X * 0.06);
+
+    const ARROW_PROPORTION = CLOCK_SIDE / 2 / 10;
+
+    // Циферблат
+    function getDialElements() {
+        // Элемент циферблата
+        function createDialElement() {
+            let dialElement = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+
+            dialElement.setAttribute('r', DIAL_SIDE_PROPORTION);
+            dialElement.setAttribute('fill', '#46b483');
+
+            clockContainer.append(dialElement);
+            return dialElement;
+        }
+
+        // Элемент с текстом
+        function getText() {
+            let text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+
+            text.setAttribute('fill', 'black')
+            text.setAttribute('font-size', String(CLOCK_SIDE / 20));
+            text.setAttribute('text-anchor', 'middle');
+
+            clockContainer.append(text);
+            return text;
+        }
+
+        // Добавление элементов циферблата с текстом
+        for (let i = 12; i >= 1; i--) {
+            let dialElement = createDialElement();
+            let text = getText();
+
+            let angle = (360 / 12) / 180 * Math.PI * i;
+
+            let ElementCenterX = CLOCK_RADIUS_X + DIAL_RADIUS_PROPORTION * Math.sin(angle);
+            let ElementCenterY = CLOCK_RADIUS_Y - DIAL_RADIUS_PROPORTION * Math.cos(angle);
+
+            dialElement.setAttribute('cx', String(ElementCenterX - (dialElement.clientWidth / 2)));
+            dialElement.setAttribute('cy', String(ElementCenterY - (dialElement.clientHeight / 2)));
+
+            text.setAttribute('x', String(ElementCenterX - (dialElement.clientWidth / 2)));
+            text.setAttribute('y', String(ElementCenterY + (DIAL_SIDE_PROPORTION / 3) - (dialElement.clientHeight / 2)));
+            text.textContent = String(i);
+        }
+    }
+
+    // Цифровые часы
+    function getDigitalClock() {
+        let digitalClock = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+
+        digitalClock.setAttribute('x', String(CLOCK_SIDE / 2));
+        digitalClock.setAttribute('y', String(CLOCK_SIDE / 3));
+
+        digitalClock.setAttribute('font-size', String(CLOCK_SIDE / 15));
+        digitalClock.setAttribute('text-anchor', 'middle');
+
+        clockContainer.append(digitalClock);
+        return digitalClock;
+    }
+
+    // Создание стрелок
+    function createArrow() {
+        let arrow = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+
+        arrow.setAttribute('x1', String(CLOCK_RADIUS_X));
+        arrow.setAttribute('x2', String(CLOCK_RADIUS_X));
+        arrow.setAttribute('y2', String(CLOCK_RADIUS_Y + ARROW_PROPORTION));
+
+        arrow.setAttribute('stroke', 'black');
+        arrow.setAttribute('stroke-linecap', 'round');
+        arrow.setAttribute('opacity', '80%');
+
+        arrow.style.transformOrigin = '50% 50%';
+
+        clockContainer.append(arrow);
+        return arrow;
+    }
+
+    // Секундная стрелка
+    function getSecondsArrow() {
+        let secondsArrow = createArrow();
+
+        secondsArrow.setAttribute('y1', SECONDS_HEIGHT);
+        secondsArrow.setAttribute('stroke-width', SECONDS_STROKE);
+
+        return secondsArrow;
+    }
+
+    // Минутная стрелка
+    function getMinutesArrow() {
+        let minutesArrow = createArrow();
+
+        minutesArrow.setAttribute('y1', MINUTES_HEIGHT);
+        minutesArrow.setAttribute('stroke-width', MINUTES_STROKE);
+
+        return minutesArrow;
+    }
+
+    // Часовая стрелка
+    function getHoursArrow() {
+        let hoursArrow = createArrow();
+
+        hoursArrow.setAttribute('y1', HOURS_HEIGHT);
+        hoursArrow.setAttribute('stroke-width', HOURS_STROKE);
+
+        return hoursArrow;
+    }
+
+    getDialElements();
+    let digitalClock = getDigitalClock();
+    let secondsArrow = getSecondsArrow();
+    let minutesArrow = getMinutesArrow();
+    let hoursArrow = getHoursArrow();
+
+    // Обновление времени
+    function updateTime() {
+        let time = new Date();
+
+        let seconds = (String(time.getSeconds()).length !== 2) ? '0' + time.getSeconds() : time.getSeconds();
+        let minutes = (String(time.getMinutes()).length !== 2) ? '0' + time.getMinutes() : time.getMinutes();
+        let hours = (String(time.getHours()).length !== 2) ? '0' + time.getHours() : time.getHours();
+
+        let secondsAngle = seconds * (360 / 60);
+        let minutesAngle = minutes * (360 / 60) + seconds * (360 / 60 / 60);
+        let hoursAngle = hours * (360 / 12) + minutes * (360 / 12 / 60);
+
+        digitalClock.textContent = `${hours} : ${minutes} : ${seconds}`;
+
+        hoursArrow.style.transform = `rotate(${hoursAngle}deg)`;
+        minutesArrow.style.transform = `rotate(${minutesAngle}deg)`;
+        secondsArrow.style.transform = `rotate(${secondsAngle}deg)`;
+
+        setTimeout(updateTime, 1000);
+    }
+
+    updateTime();
+</script>
 </body>
 </html>
