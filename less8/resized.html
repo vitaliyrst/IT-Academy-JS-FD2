@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>resized</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="image" class="image">
+    <div id="top-left" class="tl control"></div>
+    <div id="top-middle" class="tm control"></div>
+    <div id="top-right" class="tr control"></div>
+    <div id="middle-left" class="ml control"></div>
+    <div id="middle-right" class="mr control"></div>
+    <div id="bottom-left" class="bl control"></div>
+    <div id="bottom-middle" class="bm control"></div>
+    <div id="bottom-right" class="br control"></div>
+</div>
+<script>
+    "use strict";
+
+    window.addEventListener('load', work);
+
+    function work() {
+
+        const image = document.querySelector('.image');
+
+        // Обновление положения и размеров картинки
+        function update(left, top, width, height) {
+            image.style.left = left + 'px';
+            image.style.top = top + 'px';
+            image.style.width = width + 'px';
+            image.style.height = height + 'px';
+        }
+
+        document.addEventListener('pointerdown', eo => {
+            eo.preventDefault();
+
+            let currentId = eo.target.id;
+
+            // Координаты клика pointerdown
+            let startX = eo.pageX;
+            let startY = eo.pageY;
+
+            // Положение и размеры картинки при клике pointerdown
+            let startImageLeft = image.offsetLeft;
+            let startImageTop = image.offsetTop;
+            let startImageWidth = image.offsetWidth;
+            let startImageHeight = image.offsetHeight;
+
+            // Сдвиг для перемещения картинки
+            let shiftX = startX - startImageLeft;
+            let shiftY = startY - startImageTop;
+
+            document.addEventListener('pointermove', move);
+
+            function move(eo) {
+
+                if (currentId !== '') {
+
+                    // Положение указателя при pointermove
+                    let currentX = eo.pageX;
+                    let currentY = eo.pageY;
+
+                    // Смещение указателя относительно pointerdown
+                    let offsetX = currentX - startX;
+                    let offsetY = currentY - startY;
+
+                    // Перемещение картинки
+                    if (currentId === 'image') {
+                        let imageLeft = currentX - shiftX;
+                        let imageTop = currentY - shiftY;
+
+                        update(imageLeft, imageTop, startImageWidth, startImageHeight);
+                    }
+
+                    // Средний левый управляющий элемент
+                    if (currentId === 'middle-left') {
+                        let imageWidth = startImageWidth - offsetX;
+                        let imageLeft = startImageLeft + offsetX;
+
+                        update(imageLeft, startImageTop, imageWidth, startImageHeight);
+
+                        if (currentX >= startImageLeft + startImageWidth) {
+                            let reverseImageWidth = offsetX - startImageWidth;
+                            let reverseImageLeft = startImageLeft + startImageWidth;
+
+                            update(reverseImageLeft, startImageTop, reverseImageWidth, startImageHeight);
+                        }
+                    }
+
+                    // Средний правый управляющий элемент
+                    if (currentId === 'middle-right') {
+                        let imageWidth = startImageWidth + offsetX;
+
+                        update(startImageLeft, startImageTop, imageWidth, startImageHeight);
+
+                        if (currentX <= startImageLeft) {
+                            let reverseImageWidth = -offsetX - startImageWidth;
+                            let reverseImageLeft = offsetX + startImageLeft + startImageWidth;
+
+                            update(reverseImageLeft, startImageTop, reverseImageWidth, startImageHeight);
+                        }
+                    }
+
+                    // Верхний средний управляющий элемент
+                    if (currentId === 'top-middle') {
+                        let imageTop = startImageTop + offsetY;
+                        let imageHeight = startImageHeight - offsetY;
+
+                        update(startImageLeft, imageTop, startImageWidth, imageHeight);
+
+                        if (currentY >= startImageTop + startImageHeight) {
+                            let reverseImageTop = startImageTop + startImageHeight;
+                            let reverseImageHeight = offsetY - startImageHeight;
+
+                            update(startImageLeft, reverseImageTop, startImageWidth, reverseImageHeight);
+                        }
+                    }
+
+                    // Нижний средний управляющий элемент
+                    if (currentId === 'bottom-middle') {
+                        let imageHeight = startImageHeight + offsetY;
+
+                        update(startImageLeft, startImageTop, startImageWidth, imageHeight);
+
+                        if (currentY <= startImageTop) {
+                            let reverseImageTop = offsetY + startImageTop + startImageHeight;
+                            let reverseImageHeight = -offsetY - startImageHeight;
+
+                            update(startImageLeft, reverseImageTop, startImageWidth, reverseImageHeight);
+                        }
+                    }
+
+                    // Верхний левый управляющий элемент
+                    if (currentId === 'top-left') {
+                        let diffWidth = startImageWidth - offsetX;
+                        let diffHeight = startImageHeight - offsetY;
+
+                        let rateWidth = diffWidth / startImageWidth;
+                        let rateHeight = diffHeight / startImageHeight;
+                        let proportion = Math.min(rateWidth, rateHeight);
+
+                        let imageWidth = startImageWidth * proportion;
+                        let imageHeight = startImageHeight * proportion;
+
+                        let imageLeft = startImageLeft + (startImageWidth - imageWidth);
+                        let imageTop = startImageTop + (startImageHeight - imageHeight);
+
+                        update(imageLeft, imageTop, imageWidth, imageHeight);
+
+                        if (currentX >= startImageLeft + startImageWidth &&
+                            currentY >= startImageTop + startImageHeight) {
+
+                            diffWidth = offsetX - startImageWidth;
+                            diffHeight = offsetY - startImageHeight;
+
+                            rateWidth = diffWidth / startImageWidth;
+                            rateHeight = diffHeight / startImageHeight;
+                            proportion = Math.min(rateWidth, rateHeight);
+
+                            let reverseImageWidth = startImageWidth * proportion;
+                            let reverseImageHeight = startImageHeight * proportion;
+
+                            let reverseImageTop = startImageTop + startImageHeight;
+                            let reverseImageLeft = startImageLeft + startImageWidth;
+
+                            update(reverseImageLeft, reverseImageTop, reverseImageWidth, reverseImageHeight);
+                        }
+                    }
+
+                    // Верхний правый управляющий элемент
+                    if (currentId === 'top-right') {
+                        let diffWidth = startImageWidth + offsetX;
+                        let diffHeight = startImageHeight - offsetY;
+
+                        let rateWidth = diffWidth / startImageWidth;
+                        let rateHeight = diffHeight / startImageHeight;
+                        let proportion = Math.min(rateWidth, rateHeight);
+
+                        let imageWidth = startImageWidth * proportion;
+                        let imageHeight = startImageHeight * proportion;
+
+                        let imageTop = startImageTop + (startImageHeight - imageHeight);
+
+                        update(startImageLeft, imageTop, imageWidth, imageHeight);
+
+                        if (currentX <= startImageLeft &&
+                            currentY >= startImageTop + startImageHeight) {
+
+                            diffHeight = offsetY - startImageHeight;
+                            diffWidth = -offsetX - startImageWidth;
+
+                            rateWidth = diffWidth / startImageWidth;
+                            rateHeight = diffHeight / startImageHeight;
+                            proportion = Math.min(rateWidth, rateHeight);
+
+                            let reverseImageWidth = startImageWidth * proportion;
+                            let reverseImageHeight = startImageHeight * proportion;
+
+                            let reverseImageLeft = startImageLeft - reverseImageWidth;
+                            let reverseImageTop = startImageTop + startImageHeight;
+
+                            update(reverseImageLeft, reverseImageTop, reverseImageWidth, reverseImageHeight);
+                        }
+                    }
+
+                    // Нижний левый управляющий элемент
+                    if (currentId === 'bottom-left') {
+                        let diffWidth = startImageWidth - offsetX;
+                        let diffHeight = startImageHeight + offsetY;
+
+                        let rateWidth = diffWidth / startImageWidth;
+                        let rateHeight = diffHeight / startImageHeight;
+                        let proportion = Math.min(rateWidth, rateHeight);
+
+                        let imageWidth = startImageWidth * proportion;
+                        let imageHeight = startImageHeight * proportion;
+
+                        let imageLeft = startImageLeft + (startImageWidth - imageWidth);
+
+                        update(imageLeft, startImageTop, imageWidth, imageHeight);
+
+                        if (currentX >= startImageLeft + startImageWidth &&
+                            currentY <= startImageTop) {
+
+                            diffWidth = offsetX - startImageWidth;
+                            diffHeight = -offsetY - startImageHeight;
+
+                            rateWidth = diffWidth / startImageWidth;
+                            rateHeight = diffHeight / startImageHeight;
+                            proportion = Math.min(rateWidth, rateHeight);
+
+                            let reverseImageWidth = startImageWidth * proportion;
+                            let reverseImageHeight = startImageHeight * proportion;
+
+                            let reverseImageTop = startImageTop - reverseImageHeight;
+                            let reverseImageLeft = startImageLeft + startImageWidth;
+
+                            update(reverseImageLeft, reverseImageTop, reverseImageWidth, reverseImageHeight);
+                        }
+                    }
+
+                    // Нижний правый управляющий элемент
+                    if (currentId === 'bottom-right') {
+                        let diffWidth = startImageWidth + offsetX;
+                        let diffHeight = startImageHeight + offsetY;
+
+                        let rateWidth = diffWidth / startImageWidth;
+                        let rateHeight = diffHeight / startImageHeight;
+                        let proportion = Math.min(rateWidth, rateHeight);
+
+                        let imageWidth = startImageWidth * proportion;
+                        let imageHeight = startImageHeight * proportion;
+
+                        update(startImageLeft, startImageTop, imageWidth, imageHeight);
+
+                        if (currentX <= startImageLeft &&
+                            currentY <= startImageTop) {
+
+                            diffWidth = -offsetX - startImageWidth;
+                            diffHeight = -offsetY - startImageHeight;
+
+                            rateWidth = diffWidth / startImageWidth;
+                            rateHeight = diffHeight / startImageHeight;
+                            proportion = Math.min(rateWidth, rateHeight);
+
+                            let reverseImageWidth = startImageWidth * proportion;
+                            let reverseImageHeight = startImageHeight * proportion;
+
+                            let reverseImageLeft = startImageLeft - reverseImageWidth;
+                            let reverseImageTop = startImageTop - reverseImageHeight;
+
+                            update(reverseImageLeft, reverseImageTop, reverseImageWidth, reverseImageHeight);
+                        }
+                    }
+                }
+            }
+
+            document.addEventListener('pointerup', () => {
+                document.removeEventListener('pointermove', move);
+            });
+        });
+    }
+</script>
+</body>
+</html>
