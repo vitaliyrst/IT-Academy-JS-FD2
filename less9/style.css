@@ -1,4 +1,4 @@
-body{
+body {
     margin: 0;
     padding: 0;
 }
@@ -20,4 +20,55 @@ body{
     position: absolute;
     top: 200px;
     left: 200px;
+}
+
+.menu {
+    display: flex;
+    cursor: pointer;
+}
+
+ul {
+    display: flex;
+    list-style: none;
+
+    font-size: 12px;
+    font-family: sans-serif;
+    font-weight: bold;
+
+    margin: 0;
+    padding: 0;
+}
+
+.menu-item {
+    position: relative;
+
+    padding: 5px;
+    background-color: darkgoldenrod;
+    border: 1px solid saddlebrown;
+}
+
+a {
+    color: black;
+}
+
+a:hover,
+a:focus {
+    color: antiquewhite;
+}
+
+.submenu {
+    display: none;
+
+    width: 150px;
+
+    position: absolute;
+    top: 100%;
+    left: 15%;
+
+    z-index: 1;
+}
+
+.submenu-second {
+    top: 30%;
+    left: 100%;
 }

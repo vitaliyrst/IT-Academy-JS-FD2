@@ -2,9 +2,107 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>$Title$</title>
+    <title>popup_menu</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-$END$
+<div class="menu">
+
+</div>
+<script>
+    "use strict";
+
+    class Menu {
+        constructor(element, data, isFirstLayer) {
+            this.element = element;
+            this.data = data;
+            this.isFirstLayer = isFirstLayer;
+        };
+
+       getMenu() {
+
+            function build(element, data, firstLayer = true) {
+                let ul = document.createElement('ul');
+
+                for (let item of data) {
+                    let li = document.createElement('li');
+                    li.classList.add('menu-item');
+
+                    if (!firstLayer) {
+                        ul.classList.add('submenu');
+                    }
+
+                    if (item.url) {
+                        let a = document.createElement('a');
+                        a.href = item.url;
+                        a.textContent = item.name;
+                        li.append(a);
+                    } else {
+                        li.textContent = item.name;
+                    }
+
+                    if (item.submenu) {
+                        let submenu = build(li, item.submenu, false);
+
+                        if (!firstLayer) {
+                            submenu.classList.add('submenu-second');
+                        }
+                        li.addEventListener('mouseover', eo => {
+                            submenu.style.display = 'block';
+                        });
+
+                        li.addEventListener('mouseleave', eo => {
+                            submenu.style.display = 'none';
+                        });
+                    }
+
+                    ul.append(li);
+                }
+                element.append(ul);
+                return ul;
+            }
+            build(this.element, this.data, this.isFirstLayer);
+        }
+    }
+
+    let menu = [
+        {
+            name: 'Каталог', submenu:
+                [
+                    {
+                        name: 'Шуруповерты', submenu:
+                            [
+                                {name: 'Bosch', url: 'http://www.tut.by'},
+                                {name: 'Makita', url: 'http://www.tut.by'}
+                            ]
+                    },
+                    {name: 'Шпатели', url: 'http://www.tut.by'},
+                    {
+                        name: 'Краска', submenu:
+                            [
+                                {name: 'Caparol', url: 'http://www.tut.by'},
+                                {name: 'Beckers', url: 'http://www.tut.by'},
+                                {name: 'Tikkurila', url: 'http://www.tut.by'},
+                                {name: 'Alpina', url: 'http://www.tut.by'}
+                            ]
+                    }
+                ]
+        },
+        {name: 'Контакты', url: 'http://www.tut.by'},
+        {
+            name: 'Магазины', submenu:
+                [
+                    {name: 'Дзержинского', url: 'http://www.tut.by'},
+                    {name: 'Ванеева', url: 'http://www.tut.by'}
+                ]
+        }
+    ];
+
+    let menuBuilder = new Menu(document.querySelector('.menu'), menu).getMenu();
+
+
+    /*build(nav, menu);*/
+
+</script>
 </body>
 </html>
