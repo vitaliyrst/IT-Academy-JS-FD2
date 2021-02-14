@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>clock_canvas</title>
+</head>
+<body>
+<div class="container">
+
+</div>
+
+<script>
+    "use strict";
+
+
+    // Размеры часов
+    const CLOCK_SIDE = 300; // Сторона
+    const HOURS = 12; // Количество часов
+
+    const CLOCK_CENTER_X = CLOCK_SIDE / 2; // Центр X
+    const CLOCK_CENTER_Y = CLOCK_SIDE / 2; // Центр Y
+    const CLOCK_RADIUS = CLOCK_SIDE / 2; // Радиус
+
+    const DIAL_SIDE_PROPORTION = CLOCK_SIDE / 20; // Размер элемента циферблата
+    const DIAL_RADIUS_PROPORTION = CLOCK_CENTER_X * 0.85; // Радиус элемента циферблата
+
+    const SECONDS_WIDTH = CLOCK_CENTER_X * 0.02; // Ширина секундной стрелки
+    const SECONDS_HEIGHT = CLOCK_CENTER_X * 0.9; // Высота секундной стрелки
+
+    const MINUTES_WIDTH = CLOCK_CENTER_X * 0.04; // Ширина минутной стрелки
+    const MINUTES_HEIGHT = CLOCK_CENTER_X * 0.8; // Высота минутной стрелки
+
+    const HOURS_WIDTH = CLOCK_CENTER_X * 0.06; // Ширина часовой стрелки
+    const HOURS_HEIGHT = CLOCK_CENTER_X * 0.5; // Высота часовой стрелки
+
+    const ARROW_OFFSET = CLOCK_SIDE / 2 / 10; // Смещение стрелок
+
+    // Создание контейнера для часов
+    function createClockContainer() {
+        let container = document.querySelector('.container');
+
+        let clockContainer = document.createElement('canvas');
+        clockContainer.setAttribute('id', 'clock-container');
+        clockContainer.width = CLOCK_SIDE;
+        clockContainer.height = CLOCK_SIDE;
+
+        container.append(clockContainer);
+
+        return clockContainer.getContext('2d');
+    }
+
+    let context = createClockContainer();
+
+    // Создание часов
+    function createClock() {
+        context.beginPath();
+        context.arc(CLOCK_CENTER_X, CLOCK_CENTER_Y, CLOCK_RADIUS, 0, Math.PI * 2, false);
+        context.fillStyle = '#fccb66';
+        context.fill();
+    }
+
+
+    // Циферблат
+    function createDialElements() {
+        // Добавление элементов циферблата с текстом
+        for (let i = HOURS; i >= 1; i--) {
+
+            // Угол
+            let angle = (360 / HOURS) / 180 * Math.PI * i;
+
+            // Центр X, Y каждого элемента
+            let elementCenterX = CLOCK_CENTER_X + DIAL_RADIUS_PROPORTION * Math.sin(angle);
+            let elementCenterY = CLOCK_CENTER_Y - DIAL_RADIUS_PROPORTION * Math.cos(angle);
+
+            // Круг
+            context.beginPath();
+            context.arc(elementCenterX, elementCenterY, DIAL_SIDE_PROPORTION, 0, Math.PI * 2, false);
+            context.fillStyle = '#46b483';
+            context.fill();
+
+            // Текст
+            context.font = `normal ${CLOCK_SIDE / 20}px Arial`;
+            context.fillStyle = 'black';
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.fillText(String(i), elementCenterX, elementCenterY);
+        }
+    }
+
+    // Цифровые часы
+    function createDigitalClock(seconds, minutes, hours) {
+        context.beginPath();
+        context.font = `normal ${CLOCK_SIDE / 15}px Arial`;
+        context.fillStyle = 'black';
+
+        context.fillText(`${hours} : ${minutes} : ${seconds}`, CLOCK_CENTER_X, CLOCK_SIDE / 3);
+    }
+
+    // Создание стрелок
+    function createArrow(width, height, arrowAngle) {
+        let angle = arrowAngle / 180 * Math.PI;
+        let x1 = CLOCK_CENTER_X - ARROW_OFFSET * Math.sin(angle);
+        let y1 = CLOCK_CENTER_Y + ARROW_OFFSET * Math.cos(angle);
+        let x2 = CLOCK_CENTER_X + height * Math.sin(angle);
+        let y2 = CLOCK_CENTER_Y - height * Math.cos(angle);
+
+        context.beginPath();
+        context.lineWidth = width;
+        context.lineCap = 'round';
+        context.moveTo(x1, y1);
+        context.lineTo(x2, y2);
+        context.strokeStyle = 'rgba(0, 0, 0, 0.7)';
+        context.stroke();
+    }
+
+    // Обновление времени
+    function updateTime() {
+        let time = new Date();
+
+        let seconds = (String(time.getSeconds()).length !== 2) ? '0' + time.getSeconds() : time.getSeconds();
+        let minutes = (String(time.getMinutes()).length !== 2) ? '0' + time.getMinutes() : time.getMinutes();
+        let hours = (String(time.getHours()).length !== 2) ? '0' + time.getHours() : time.getHours();
+
+        let secondsAngle = seconds * (360 / 60);
+        let minutesAngle = minutes * (360 / 60) + seconds * (360 / 60 / 60);
+        let hoursAngle = hours * (360 / HOURS) + minutes * (360 / HOURS / 60);
+
+        createClock();
+        createDialElements();
+
+        createArrow(SECONDS_WIDTH, SECONDS_HEIGHT, secondsAngle);
+        createArrow(MINUTES_WIDTH, MINUTES_HEIGHT, minutesAngle);
+        createArrow(HOURS_WIDTH, HOURS_HEIGHT, hoursAngle);
+
+        createDigitalClock(seconds, minutes, hours);
+
+        setTimeout(updateTime, 1020 - time.getMilliseconds());
+    }
+
+    updateTime();
+
+</script>
+</body>
+</html>
