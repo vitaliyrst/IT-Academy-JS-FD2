@@ -43,10 +43,6 @@
                         if (submenu) {
                             let ulSub = build(li, submenu, false);
 
-                            if (!firstLayer) {
-                                ulSub.classList.add('submenu-second');
-                            }
-
                             li.addEventListener('mouseover', () => {
                                 ulSub.style.display = 'inherit';
                             });
@@ -98,7 +94,6 @@
     ];
 
     new Menu(document.querySelector('.menu'), menu).getMenu();
-
 </script>
 </body>
 </html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>knight_rec</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<script>
+    "use strict";
+
+    const CELL_QUANTITY = 8;
+    const CELL_SIZE = CELL_QUANTITY * CELL_QUANTITY;
+
+    function initVisited() {
+        let visited = [];
+
+        for (let i = 0; i < 8; i++) {
+            let inner = []
+            for (let j = 0; j < 8; j++) {
+                inner[j] = 0;
+            }
+            visited[i] = inner;
+        }
+        return visited;
+    }
+
+    let visited = initVisited();
+    visited[0][0] = 0;
+
+    const knightMoves = [
+        [2, 1, -1, -2, -2, -1, 1, 2],
+        [1, 2, 2, 1, -1, -2, -2, -1],
+    ];
+
+    function getTour(moveCount, x, y) {
+
+        if (moveCount === CELL_SIZE) {
+            return true;
+        }
+
+        for (let i = 0; i < knightMoves[0].length; i++) {
+            let nextX = x + knightMoves[0][i];
+            let nextY = y + knightMoves[1][i];
+
+            if (checkStep(nextX, nextY) && visited[nextX][nextY] === 0) {
+                visited[nextX][nextY] = moveCount;
+
+                if (getTour(moveCount + 1, nextX, nextY)) {
+                    return true;
+                }
+                visited[nextX][nextY] = 0;
+            }
+        }
+        return false;
+    }
+
+    function checkStep(x, y) {
+        return !(x < 0 || x >= CELL_QUANTITY || y < 0 || y >= CELL_QUANTITY);
+    }
+
+    getTour(1,0,0);
+    console.log(visited);
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.desk {
+    margin-top: 100px;
+    margin-left: 100px;
+}
+
+
+.cell {
+    font-size: 24px;
+    text-align: center;
+}
+
+.current {
+    color: transparent;
+    background-image: url("wN.png");
+    background-size: contain;
+}

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>knight</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+
+</div>
+<script>
+    "use strict";
+
+    window.addEventListener('load', work);
+
+    function work() {
+
+        const CELL_QUANTITY = 8; // Количество ячеек
+        const CELL_SIZE = CELL_QUANTITY * CELL_QUANTITY; // Размер доски
+
+        let optionOnTimeout; // Включение цвета div .option
+        let optionOffTimeout; // Выключение цвета div .option
+
+        let step = 1; // Начальный шаг (записываем в innerHtml каждой ячейки после хода)
+        let currentX; // Текущий X
+        let currentY; // текущий Y
+
+        let moveInterval; // Таймер для анимации движения
+
+        // Создание доски
+        function createBoard(side) {
+            const container = document.querySelector('.container');
+            const table = document.createElement('table');
+            table.classList.add('desk');
+
+            // Текст для выбора ячейки
+            let p = document.createElement('p');
+            p.style.position = 'absolute';
+            p.style.fontSize = '30px';
+            p.style.top = '0';
+            p.style.left = '100px';
+            p.textContent = 'Выберите ячейку';
+            document.querySelector('.container').insertAdjacentElement('afterbegin', p);
+
+            // Счетчик цвета (коричневый/желтый)
+            let countColor = 0
+
+            for (let i = 1; i <= side; i++) {
+                let row = document.createElement('tr');
+                row.classList.add('row');
+
+                for (let j = 1; j <= side; j++) {
+                    let cell = document.createElement('td');
+                    cell.classList.add('cell');
+
+                    if (countColor % 2 !== 0) {
+                        cell.style.backgroundColor = '#3E2723';
+                    } else {
+                        cell.style.backgroundColor = '#fad390';
+                    }
+                    if (
+                        j === 1 && i === 1 ||
+                        j === 1 && i === CELL_QUANTITY ||
+                        j === CELL_QUANTITY && i === 1 ||
+                        j === CELL_QUANTITY && i === CELL_QUANTITY
+                    ) {
+                        // Div для мигания угловых клеток
+                        let div = document.createElement('div');
+                        div.classList.add('option');
+                        div.style.width = '60%';
+                        div.style.height = '60%';
+                        div.style.margin = '0 auto';
+                        div.style.backgroundColor = 'green';
+                        cell.append(div);
+
+                        // Вызываем blink для мигания div
+                        blink(div, 700);
+
+                        // Обработчик выбранной ячейки
+                        cell.addEventListener('click', (eo) => {
+                            p.textContent = '';
+                            startPath(eo);
+                        });
+                    }
+
+                    cell.style.width = CELL_SIZE / 2 + 'px';
+                    cell.style.height = CELL_SIZE / 2 + 'px';
+                    cell.setAttribute('x', String(j));
+                    cell.setAttribute('y', String(i));
+
+                    row.append(cell);
+                    countColor++;
+                }
+                table.append(row);
+                countColor++;
+            }
+            container.append(table);
+            return table;
+        }
+
+        // Создаем доску
+        createBoard(CELL_QUANTITY);
+
+        // Мигание div
+        function blink(element, time) {
+            element.style.visibility = 'hidden';
+            optionOnTimeout = setTimeout(function () {
+                element.style.visibility = 'visible';
+            }, time);
+            optionOffTimeout = setTimeout(function () {
+                blink(element, time);
+            }, time * 2)
+        }
+
+
+        // Запуск поиска пути с угловой ячейки
+        function startPath(eo) {
+
+            // Ячейка
+            let cell = (eo.target.tagName === 'DIV') ? eo.path[1] : eo.target;
+
+            // Очищаем таймеры мигания
+            clearTimeout(optionOnTimeout);
+            clearTimeout(optionOffTimeout);
+
+            // Убираем div .option
+            let divs = document.querySelectorAll('.option');
+            divs.forEach((div) => {
+                div.remove();
+            });
+
+
+            // По клику на угловые элементы перезаписываем текущий X, Y ставим клетке класс current и visited
+            // Записываем номер шага
+            currentX = cell.getAttribute('x');
+            currentY = cell.getAttribute('y');
+
+            cell.classList.add('current');
+            cell.classList.add('visited');
+
+            cell.innerHTML = String(step);
+
+            // Запускаем следующий шаг
+            moveInterval = setInterval(() => {
+                nextStep();
+            }, 200)
+        }
+
+        // Получение возможных вариантов для движения
+        function getPossiblePath(x, y) {
+
+            // Возможные варианты для хода
+            const possibleMoves = [
+                [-2, 1], [-2, -1], // left
+                [-1, 2], [1, 2],   // top
+                [2, -1], [2, 1],   // right
+                [1, -2], [-1, -2]  // down
+            ];
+
+            // Допустимые ячейки для следующего хода
+            let possibleCells = [];
+            for (let i = 0; i < possibleMoves.length; i++) {
+                let nextX = Number(x) + possibleMoves[i][0];
+                let nextY = Number(y) + possibleMoves[i][1];
+
+                let cell = document.querySelector(`.cell[x="${nextX}"][y="${nextY}"]`);
+
+                if (cell && !cell.classList.contains('visited')) {
+                    // Добавляем допустимую ячейку
+                    possibleCells.push(cell);
+                }
+            }
+            return possibleCells;
+        }
+
+
+        function nextStep() {
+            // Допустимые ячейки
+            let possibleCells = getPossiblePath(currentX, currentY);
+
+            // Массив следующих возможных шагов
+            let nextStepArr = [];
+            let index = 0;
+            for (let i = 0; i < possibleCells.length; i++) {
+                let nextX = possibleCells[i].getAttribute('x');
+                let nextY = possibleCells[i].getAttribute('y');
+                let nextPossibleMoves = getPossiblePath(nextX, nextY).length;
+                nextStepArr.push(nextPossibleMoves);
+            }
+
+            // Убираем с предыдущей ячейки .current и красим её в зеленый
+            let previousStep = document.querySelector('.current');
+            previousStep.classList.remove('current');
+            previousStep.style.backgroundColor = 'green';
+
+            // Получение минимального количества шагов среди следующих возможных шагов
+            let length = nextStepArr.length;
+            let minStep = nextStepArr[0];
+
+            for (let j = length; j > 0; j--) {
+                if (nextStepArr[j] < minStep) {
+                    minStep = nextStepArr[j]
+                    index = j;
+                }
+            }
+
+            // Следующая ячейка (выбираем ячейку с минимальным количеством шагов на следующем шаге)
+            let nextCell = possibleCells[index];
+
+            // Отмечаем текущей и посещенной
+            nextCell.classList.add('current');
+            nextCell.classList.add('visited');
+
+            // Устанавливаем текущий x y
+            currentX = nextCell.getAttribute('x');
+            currentY = nextCell.getAttribute('y');
+
+            // Записываем номер шага в ячейку
+            nextCell.innerHTML = String(++step);
+
+
+            if (step === CELL_SIZE) {
+
+                // Убираем таймер
+                clearInterval(moveInterval);
+
+                // Добавляем текст
+                let p = document.createElement('p');
+                document.querySelector('.container').insertAdjacentElement('afterbegin', p);
+                p.style.position = 'absolute';
+                p.style.fontSize = '30px';
+                p.style.top = '0';
+                p.style.left = '100px';
+                p.textContent = 'Кликните, чтобы перезагрузить';
+
+                // Перезапускаем страницу
+                window.addEventListener('click', () => {
+                    location.reload();
+                });
+            }
+        }
+    }
+</script>
+</body>
+</html>
