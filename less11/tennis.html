@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>tennis</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+
+</div>
+<script>
+    "use strict";
+
+    let div = document.querySelector('.container');
+    let RAF = window.requestAnimationFrame;
+
+    const FIELD_WIDTH = 600; // Ширина поля
+    const FIELD_HEIGHT = 350; // Высота поля
+    const FIELD_BACKGROUND = 'url("tennis.jpg")'; // Фон поля
+
+    const RACKET_WIDTH = 20; // Ширина ракетки
+    const RACKET_HEIGHT = 60; // Высота ракетки
+
+    const BALL_RADIUS = 20; // Радиус мячика
+    const BALL_BACKGROUND = 'url("ball.png")'; // Фон мячика
+
+    // Таблица очков
+    class ScoreTable {
+        constructor() {
+            this.firstPlayerScore = 0;
+            this.secondPlayerScore = 0;
+            this.element = document.createElement('p');
+        }
+
+        build(width, height) {
+            this.element.classList.add('score-table');
+            this.element.style.width = width + 'px';
+            this.element.style.height = height + 'px';
+            this.element.style.margin = '0 auto 10px';
+
+            this.element.style.border = '1px solid black';
+
+            this.element.style.fontSize = '40px';
+            this.element.textContent = `${this.firstPlayerScore} : ${this.secondPlayerScore}`;
+            this.element.style.textAlign = 'center';
+
+            div.append(this.element);
+        }
+
+        updateScore(firstPlayer, secondPlayer) {
+            this.firstPlayerScore += firstPlayer;
+            this.secondPlayerScore += secondPlayer;
+            this.element.textContent = `${this.firstPlayerScore} : ${this.secondPlayerScore}`;
+        }
+    }
+
+    let score = new ScoreTable();
+    score.build(100, 50);
+
+    // Поле
+    class Field {
+        constructor() {
+            this.element = document.createElement('div');
+            this.left = 0;
+            this.top = 0;
+            this.width = 0;
+            this.height = 0;
+        }
+
+        build(width, height) {
+            this.element.classList.add('field');
+            this.element.style.width = width + 'px';
+            this.element.style.height = height + 'px';
+
+            this.element.style.backgroundImage = FIELD_BACKGROUND;
+            this.element.style.backgroundRepeat = 'no-repeat';
+            this.element.style.backgroundSize = '100% 100%';
+
+            div.append(this.element);
+        }
+
+        fillData() {
+            this.left = this.element.offsetLeft;
+            this.top = this.element.offsetTop;
+            this.width = this.element.offsetWidth;
+            this.height = this.element.offsetHeight;
+        }
+    }
+
+
+    let field = new Field();
+    field.build(FIELD_WIDTH, FIELD_HEIGHT);
+    field.fillData();
+
+    // Ракетка
+    class Racket {
+        constructor() {
+            this.element = document.createElement('div');
+            this.speed = 0;
+            this.height = 0;
+            this.top = 0;
+        }
+
+        build(width, height, isFirstPlayer) {
+            this.element.style.width = width + 'px';
+            this.element.style.height = height + 'px';
+            this.element.style.backgroundColor = 'black';
+            this.element.style.position = 'absolute';
+            this.element.style.transform = 'translateZ(0)';
+
+            if (isFirstPlayer) {
+                this.element.style.left = field.left + 'px';
+                this.element.style.top = field.top + field.height / 2 - height / 2 + 'px';
+            } else {
+                this.element.style.left = field.left + field.width - width + 'px';
+                this.element.style.top = field.top + field.height / 2 - height / 2 + 'px';
+            }
+            field.element.append(this.element);
+        }
+
+        fillData() {
+            this.top = this.element.offsetTop;
+            this.height = this.element.offsetHeight;
+        }
+
+        move() {
+            this.element.style.top = this.top + "px";
+        }
+    }
+
+    let leftRacket = new Racket();
+    leftRacket.build(RACKET_WIDTH, RACKET_HEIGHT, true);
+    leftRacket.fillData();
+    let rightRacket = new Racket();
+    rightRacket.build(RACKET_WIDTH, RACKET_HEIGHT, false);
+    rightRacket.fillData();
+
+    // Обработчик keydown для ракеток
+    document.addEventListener('keydown', racketStartMove);
+
+    function racketStartMove(eo) {
+        let keyCode = eo.code;
+
+        if (keyCode === 'ShiftLeft') {
+            leftRacket.speed = -5;
+        }
+        if (keyCode === 'ControlLeft') {
+            leftRacket.speed = 5;
+        }
+        if (keyCode === 'ArrowUp') {
+            rightRacket.speed = -5;
+        }
+        if (keyCode === 'ArrowDown') {
+            rightRacket.speed = 5;
+        }
+    }
+
+    // Обработчик keyup для ракеток
+    document.addEventListener('keyup', (eo) => {
+        let keyCode = eo.code;
+
+        if (keyCode === 'ShiftLeft' || keyCode === 'ControlLeft') {
+            leftRacket.speed = 0;
+        }
+        if (keyCode === 'ArrowUp' || keyCode === 'ArrowDown') {
+            rightRacket.speed = 0;
+        }
+    });
+
+    // Движение ракетки
+    function racketMove(racket) {
+        racket.top += racket.speed;
+        if (racket.top <= field.top) {
+            racket.top = field.top;
+        }
+        if (racket.top >= field.top + field.height - racket.height) {
+            racket.top = (field.top + field.height) - racket.height;
+        }
+        racket.move();
+    }
+
+    // Мячик
+    class Ball {
+        constructor() {
+            this.element = document.createElement('div');
+            this.width = 0;
+            this.height = 0;
+            this.left = 0;
+            this.top = 0;
+            this.speedX = 2;
+            this.speedY = 2;
+        }
+
+        build(radius) {
+            this.element.classList.add('ball');
+            this.element.style.width = BALL_RADIUS + 'px';
+            this.element.style.height = BALL_RADIUS + 'px';
+            this.element.style.borderRadius = '50%';
+
+            this.element.style.backgroundImage = 'url("ball.png")';
+            this.element.style.transform = 'translateZ(0)';
+            this.element.style.position = 'absolute';
+            this.element.style.left = field.left + (field.width / 2) - (radius / 2) + 'px';
+            this.element.style.top = field.top + (field.height / 2) - (radius / 2) + 'px';
+
+            field.element.append(this.element);
+        }
+
+        fillData() {
+            this.width = this.element.offsetWidth;
+            this.height = this.element.offsetHeight;
+            this.left = this.element.offsetLeft;
+            this.top = this.element.offsetTop;
+        }
+
+        move() {
+            this.element.style.left = this.left + "px";
+            this.element.style.top = this.top + "px";
+        }
+    }
+
+    let ball = new Ball();
+    ball.build(BALL_RADIUS);
+    ball.fillData();
+
+    // Кнопка старта
+    class StartButton {
+        constructor() {
+            this.element = document.createElement('button');
+        }
+
+        build() {
+            this.element.classList.add('start');
+            this.element.style.position = 'absolute';
+            this.element.innerHTML = 'Start';
+            this.element.style.top = field.top - 50 + 'px';
+            field.element.append(this.element);
+        }
+
+        update() {
+            ball.element.remove();
+            ball.build(BALL_RADIUS);
+            ball.fillData();
+            ball.speedX = (Math.random() < 0.5 ? -2 : 2);
+            ball.speedY = (Math.random() < 0.5 ? -2 : 2);
+            play();
+        }
+    }
+
+    let startButton = new StartButton();
+    startButton.build();
+
+    startButton.element.addEventListener('click', () => {
+        if (ball.speedX && ball.element.className !== 'ball run') {
+            ball.element.classList.add('run');
+            play();
+        }
+        if (ball.speedX === 0) {
+            startButton.update();
+        }
+    });
+
+
+    // Игра
+    function play() {
+        ball.left += ball.speedX;
+        ball.top += ball.speedY;
+
+        racketMove(leftRacket);
+        racketMove(rightRacket);
+
+        let playerOnePosTop = leftRacket.element.offsetTop;
+        let playerOnePosBottom = leftRacket.element.offsetTop + leftRacket.element.offsetHeight;
+        let playerTwoPosTop = rightRacket.element.offsetTop;
+        let playerTwoPosBottom = rightRacket.element.offsetTop + rightRacket.element.offsetHeight;
+
+        if (ball.left + ball.width > rightRacket.element.offsetLeft &&
+            (ball.top + ball.height >= playerTwoPosTop && ball.top <= playerTwoPosBottom)) {
+            ball.speedX = -ball.speedX;
+        }
+
+        if (ball.left < leftRacket.element.offsetLeft + leftRacket.element.offsetWidth &&
+            (ball.top + ball.height >= playerOnePosTop && ball.top <= playerOnePosBottom)) {
+            ball.speedX = -ball.speedX;
+        }
+
+        if (ball.left + ball.width > field.width + field.left) {
+            ball.speedX = 0;
+            score.updateScore(1, 0);
+            return;
+        }
+
+        if (ball.left < field.left) {
+            ball.speedX = 0;
+            score.updateScore(0, 1);
+            return;
+        }
+
+        if (ball.top + ball.height > field.height + field.top) {
+            ball.speedY = -ball.speedY;
+        }
+
+        if (ball.top < field.top) {
+            ball.speedY = -ball.speedY;
+        }
+
+        ball.move()
+        RAF(play);
+    }
+</script>
+</body>
+</html>
