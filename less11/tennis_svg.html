@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>tennis_svg</title>
+</head>
+<body>
+<div class="container">
+
+</div>
+<script>
+    "use strict";
+
+    // SVG контейнер
+    class Container {
+
+        #create() {
+            let tennisContainer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            tennisContainer.setAttribute('id', 'tennis-container');
+            tennisContainer.setAttribute('width', '600');
+            tennisContainer.setAttribute('height', '350');
+            document.querySelector('.container').append(tennisContainer);
+        }
+
+        getElement() {
+            if (!document.getElementById('tennis-container')) {
+                this.#create();
+            }
+            return document.getElementById('tennis-container');
+        }
+    }
+
+    // Таблица очков
+    class Score {
+
+        firstPlayer = 0;
+        secondPlayer = 0;
+        element;
+
+        create() {
+            let scoreTable = document.createElement('div');
+            scoreTable.style.width = '100px';
+            scoreTable.style.border = '1px solid black';
+            scoreTable.style.borderRadius = '10%';
+
+            scoreTable.style.marginLeft = '250px';
+            scoreTable.style.marginBottom = '20px';
+
+            scoreTable.style.fontSize = '50px';
+            scoreTable.style.textAlign = 'center';
+            scoreTable.textContent = `${this.firstPlayer} : ${this.secondPlayer}`;
+
+            document.querySelector('.container').append(scoreTable);
+            this.element = scoreTable;
+        }
+
+        updateScore(first, second) {
+            this.firstPlayer += first;
+            this.secondPlayer += second;
+            this.element.textContent = `${this.firstPlayer} : ${this.secondPlayer}`;
+        }
+    }
+
+    // Поле
+    class Field {
+
+        constructor() {
+            this.container = new Container().getElement();
+        }
+
+        element;
+
+        create() {
+            let tennisField = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            tennisField.setAttribute('id', 'tennis-field');
+            tennisField.setAttribute('x', '0');
+            tennisField.setAttribute('y', '0');
+            tennisField.setAttribute('width', '600');
+            tennisField.setAttribute('height', '350');
+            tennisField.setAttribute('fill', 'green');
+            this.container.append(tennisField);
+        }
+
+        getData() {
+            if (!document.getElementById('tennis-field')) {
+                this.create();
+            }
+            this.element = document.getElementById('tennis-field');
+            return {
+                width: Number(this.element.getAttribute('width')),
+                height: Number(this.element.getAttribute('height')),
+                left: Number(this.element.getAttribute('x')),
+                top: Number(this.element.getAttribute('y'))
+            };
+        }
+    }
+
+    // Игрок
+    class Player {
+
+        constructor() {
+            this.container = new Container().getElement();
+            this.field = new Field().getData();
+        }
+
+        width = 10;
+        height = 50;
+        speed = 0;
+        element;
+        left;
+        top;
+
+        create(isFirstPlayer) {
+            let player = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+
+            if (isFirstPlayer) {
+                player.setAttribute('x', String(this.field.left));
+                player.setAttribute('y', String((this.field.height - this.height) / 2));
+            } else {
+                player.setAttribute('x', String(this.field.width - this.width));
+                player.setAttribute('y', String((this.field.height - this.height) / 2));
+            }
+
+            player.setAttribute('width', String(this.width));
+            player.setAttribute('height', String(this.height));
+            player.setAttribute('fill', 'black');
+
+            this.container.append(player);
+            this.element = player;
+            this.left = Number(this.element.getAttribute('x'));
+            this.top = Number(this.element.getAttribute('y'));
+        }
+
+        move() {
+            this.top += this.speed;
+            if (this.top <= this.field.top) {
+                this.top = this.field.top;
+            }
+            if (this.top >= this.field.top + this.field.height - this.height) {
+                this.top = (this.field.top + this.field.height) - this.height;
+            }
+            this.element.setAttribute('y', String(this.top));
+        }
+    }
+
+    // Мячик
+    class Ball {
+
+        constructor(firstPlayer, secondPlayer, scoreTable) {
+            this.container = new Container().getElement();
+            this.field = new Field().getData();
+            this.firstPlayer = firstPlayer;
+            this.secondPlayer = secondPlayer;
+            this.scoreTable = scoreTable;
+        }
+
+        radius = 10;
+        speedX = 2;
+        speedY = 2;
+        element;
+        left;
+        top;
+        animate = true;
+
+        create() {
+            let ball = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            ball.setAttribute('id', 'tennis-ball');
+            ball.setAttribute('cx', String(this.field.width / 2));
+            ball.setAttribute('cy', String(this.field.height / 2));
+            ball.setAttribute('r', String(this.radius));
+            ball.setAttribute('fill', 'yellow');
+            this.container.append(ball);
+            this.element = ball;
+            this.left = Number(this.element.getAttribute('cx'));
+            this.top = Number(this.element.getAttribute('cy'));
+        }
+
+        move() {
+            this.left += this.speedX;
+            this.top += this.speedY;
+
+            let playerOnePosTop = this.firstPlayer.top;
+            let playerOnePosBottom = this.firstPlayer.top + this.firstPlayer.height;
+            let playerTwoPosTop = this.secondPlayer.top;
+            let playerTwoPosBottom = this.secondPlayer.top + this.secondPlayer.height;
+
+            if (this.left + this.radius > this.secondPlayer.left &&
+                (this.top + this.radius >= playerTwoPosTop && this.top - this.radius <= playerTwoPosBottom)) {
+                this.speedX = -this.speedX;
+            }
+
+            if (this.left - this.radius < this.firstPlayer.left + this.firstPlayer.width &&
+                (this.top + this.radius >= playerOnePosTop && this.top - this.radius <= playerOnePosBottom)) {
+                this.speedX = -this.speedX;
+            }
+
+            if (this.left + this.radius > this.field.width + this.field.left) {
+                this.speedX = 0;
+                this.scoreTable.updateScore(1, 0);
+                this.animate = false;
+            }
+
+            if (this.left - this.radius < this.field.left) {
+                this.speedX = 0;
+                this.scoreTable.updateScore(0, 1);
+                this.animate = false;
+            }
+
+            if (this.top + this.radius > this.field.height + this.field.top) {
+                this.speedY = -this.speedY;
+            }
+
+            if (this.top - this.radius < this.field.top) {
+                this.speedY = -this.speedY;
+            }
+
+            this.element.setAttribute('cx', String(this.left));
+            this.element.setAttribute('cy', String(this.top));
+        }
+
+        startPosition() {
+            this.left = this.field.width / 2;
+            this.top = this.field.height / 2;
+            this.speedX = 2;
+            this.speedY = 2;
+            this.animate = true;
+        }
+    }
+
+    // Стартовая кнопка
+    class StartButton {
+
+        element;
+        animate = true;
+
+        constructor(ball) {
+            this.ball = ball;
+        }
+
+        create() {
+            let button = document.createElement('button');
+            button.classList.add('start');
+            button.style.position = 'absolute';
+            button.style.top = '30px';
+            button.style.left = '30px';
+            button.style.width = '100px';
+            button.innerHTML = 'Start';
+            document.querySelector('.container').append(button);
+            this.element = button;
+        }
+
+        update() {
+            this.ball.startPosition();
+            window.requestAnimationFrame(play);
+        }
+    }
+
+    let scoreTable = new Score();
+    scoreTable.create();
+
+    let field = new Field();
+    field.create();
+
+    let firstPlayer = new Player();
+    firstPlayer.create(true);
+
+    let secondPlayer = new Player();
+    secondPlayer.create(false);
+
+    let ball = new Ball(firstPlayer, secondPlayer, scoreTable);
+    ball.create();
+
+    let startButton = new StartButton(ball);
+    startButton.create();
+
+    document.addEventListener('keydown', playerStartMove);
+
+    function playerStartMove(eo) {
+        let keyCode = eo.code;
+
+        if (keyCode === 'ShiftLeft') {
+            firstPlayer.speed = -5;
+        }
+        if (keyCode === 'ControlLeft') {
+            firstPlayer.speed = 5;
+        }
+        if (keyCode === 'ArrowUp') {
+            secondPlayer.speed = -5;
+        }
+        if (keyCode === 'ArrowDown') {
+            secondPlayer.speed = 5;
+        }
+    }
+
+    document.addEventListener('keyup', (eo) => {
+        let keyCode = eo.code;
+
+        if (keyCode === 'ShiftLeft' || keyCode === 'ControlLeft') {
+            firstPlayer.speed = 0;
+        }
+        if (keyCode === 'ArrowUp' || keyCode === 'ArrowDown') {
+            secondPlayer.speed = 0;
+        }
+    });
+
+    startButton.element.addEventListener('click', () => {
+        if (startButton.animate) {
+            startButton.animate = false;
+            window.requestAnimationFrame(play);
+        }
+        if (ball.speedX === 0) {
+            startButton.update();
+        }
+    });
+
+    function play() {
+        firstPlayer.move()
+        secondPlayer.move()
+        ball.move()
+        if (ball.animate) {
+            window.requestAnimationFrame(play);
+        }
+    }
+
+</script>
+</body>
+</html>
