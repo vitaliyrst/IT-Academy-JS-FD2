@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>tennis_canvas</title>
+</head>
+<body>
+<script>
+    "use strict";
+
+    /**
+     * @class Button
+     * button for start tennis game
+     */
+    class StartButton {
+        /**
+         * @method create
+         */
+        static create() {
+            let button = document.createElement('button');
+            button.classList.add('start');
+            button.style.position = 'absolute';
+            button.style.top = '30px';
+            button.style.left = '30px';
+            button.style.width = '100px';
+            button.innerHTML = 'Start';
+            document.body.append(button);
+        }
+    }
+
+    /**
+     * @class ScoreTable
+     * table for score player one, player two
+     */
+    class ScoreTable {
+        /**
+         * @constructor
+         * @property {Number} firstPlayer - score first player
+         * @property {Number} secondPlayer - score second player
+         */
+        constructor() {
+            this.firstPlayer = 0;
+            this.secondPlayer = 0;
+        }
+
+        /**
+         * @method create score table
+         */
+        #create() {
+            let scoreTable = document.createElement('div');
+            scoreTable.classList.add('score-table');
+            scoreTable.style.width = '100px';
+            scoreTable.style.border = '1px solid black';
+            scoreTable.style.borderRadius = '10%';
+
+            scoreTable.style.marginLeft = '250px';
+            scoreTable.style.marginBottom = '20px';
+
+            scoreTable.style.fontSize = '50px';
+            scoreTable.style.textAlign = 'center';
+            scoreTable.textContent = `${this.firstPlayer} : ${this.secondPlayer}`;
+
+            document.body.append(scoreTable);
+        }
+
+        /**
+         * @method update score
+         * @param {Number} first
+         * @param {Number} second
+         */
+        updateScore(first, second) {
+            if (!document.querySelector('.score-table')) {
+                this.#create();
+            }
+            this.firstPlayer += first;
+            this.secondPlayer += second;
+            document.querySelector('.score-table').textContent = `${this.firstPlayer} : ${this.secondPlayer}`;
+        }
+    }
+
+    /**
+     * @class Container
+     * canvas container for tennis field
+     */
+    class Container {
+        /**
+         * @property {HTMLElement} container - main container
+         * @property {Number} containerWidth - canvas container width
+         * @property {Number} containerHeight - canvas container height
+         * @property {Number} containerLeft - canvas container left
+         * @property {Number} containerTop - canvas container top
+         */
+        container = document.body;
+        containerWidth = 600;
+        containerHeight = 350;
+        containerLeft = 0;
+        containerTop = 0;
+
+        /**
+         * @method create canvas-container
+         */
+        #createCanvasContainer() {
+            const tag = document.createElement('canvas');
+            tag.setAttribute('id', 'canvas-container');
+            tag.width = this.containerWidth;
+            tag.height = this.containerHeight;
+            this.container.append(tag);
+        }
+
+        /**
+         * @method get canvas container context
+         * @return {CanvasRenderingContext2D}
+         */
+        getContext() {
+            if (!document.getElementById('canvas-container')) {
+                this.#createCanvasContainer();
+            }
+            return document.getElementById('canvas-container').getContext('2d');
+        }
+    }
+
+    /**
+     * @class Field
+     * @extends Container
+     * tennis field
+     */
+    class Field extends Container {
+
+        /**
+         * @constructor
+         * @property {CanvasRenderingContext2D} context
+         */
+        constructor() {
+            super();
+            this.context = this.getContext();
+        }
+
+        /**
+         * @method draw canvas rect
+         */
+        draw() {
+            this.context.beginPath();
+            this.context.fillStyle = 'green';
+            this.context.fillRect(0, 0, 600, 350);
+        }
+    }
+
+    /**
+     * @class Player
+     * @extends Container
+     * first and second player for tennis
+     */
+    class Player extends Container {
+
+        /**
+         * @constructor
+         * @property {CanvasRenderingContext2D} context
+         * @property {Number} playerWidth
+         * @property {Number} playerHeight
+         * @property {Number} playerTop
+         * @property {Number} playerLeft
+         * @property {Number} speed
+         */
+        constructor() {
+            super();
+            this.context = this.getContext();
+            this.playerWidth = 10;
+            this.playerHeight = 50;
+            this.playerTop = this.containerHeight / 2 - this.playerHeight / 2;
+            this.playerLeft = 0;
+            this.speed = 0;
+        }
+
+        /**
+         * @method draw canvas rect
+         * @param isFirstPlayer
+         */
+        draw(isFirstPlayer) {
+            this.context.beginPath();
+            this.context.fillStyle = 'black';
+            if (isFirstPlayer) {
+                this.context.fillRect(this.playerLeft, this.playerTop, this.playerWidth, this.playerHeight);
+            } else {
+                this.playerLeft = this.containerLeft + this.containerWidth - this.playerWidth;
+                this.context.fillRect(this.playerLeft, this.playerTop, this.playerWidth, this.playerHeight);
+            }
+        }
+
+        /**
+         * @method move player
+         */
+        move() {
+            this.playerTop += this.speed;
+            if (this.playerTop <= this.containerTop) {
+                this.playerTop = this.containerTop;
+            }
+            if (this.playerTop >= this.containerTop + this.containerHeight - this.playerHeight) {
+                this.playerTop = (this.containerTop + this.containerHeight) - this.playerHeight;
+            }
+        }
+    }
+
+    /**
+     * @class Ball
+     * @extends Container
+     * ball for tennis
+     */
+    class Ball extends Container {
+
+        /**
+         * @constructor
+         * @param firstPlayer
+         * @param secondPlayer
+         * @param scoreTable
+         * @property {CanvasRenderingContext2D} context
+         * @property {Number} ballRadius
+         * @property {Number} ballCenterX
+         * @property {Number} ballCenterY
+         * @property {Number} speedX
+         * @property {Number} speedY
+         * @property {Object} firstPlayer - instance Player
+         * @property {Object} secondPlayer - instance Player
+         * @property {Object} scoreTable - instance ScoreTable
+         * @property {Number} moved - start ball move
+         */
+        constructor(firstPlayer, secondPlayer, scoreTable) {
+            super();
+            this.context = this.getContext();
+            this.ballRadius = 10;
+            this.ballCenterX = this.containerWidth / 2;
+            this.ballCenterY = this.containerHeight / 2;
+            this.speedX = 2;
+            this.speedY = 2;
+            this.firstPlayer = firstPlayer;
+            this.secondPlayer = secondPlayer;
+            this.scoreTable = scoreTable;
+            this.moved = 0;
+        }
+
+        /**
+         * @method draw canvas arc
+         */
+        draw() {
+            this.context.beginPath();
+            this.context.fillStyle = 'yellow';
+            this.context.arc(this.ballCenterX, this.ballCenterY, this.ballRadius, 0, Math.PI * 2, false);
+            this.context.fill();
+        }
+
+        /**
+         * @method move ball
+         */
+        move() {
+            if (this.moved) {
+                this.ballCenterX += this.speedX;
+                this.ballCenterY += this.speedY;
+
+                let playerOnePosTop = this.firstPlayer.playerTop;
+                let playerOnePosBottom = this.firstPlayer.playerTop + this.firstPlayer.playerHeight;
+                let playerTwoPosTop = this.secondPlayer.playerTop;
+                let playerTwoPosBottom = this.secondPlayer.playerTop + this.secondPlayer.playerHeight;
+
+                if (this.ballCenterX + this.ballRadius > this.secondPlayer.playerLeft &&
+                    this.ballCenterY + this.ballRadius >= playerTwoPosTop &&
+                    this.ballCenterY - this.ballRadius <= playerTwoPosBottom) {
+
+                    this.speedX = -this.speedX;
+                }
+
+                if (this.ballCenterX - this.ballRadius < this.firstPlayer.playerLeft + this.firstPlayer.playerWidth &&
+                    this.ballCenterY + this.ballRadius >= playerOnePosTop &&
+                    this.ballCenterY - this.ballRadius <= playerOnePosBottom) {
+
+                    this.speedX = -this.speedX;
+                }
+
+                if (this.ballCenterX + this.ballRadius > this.containerWidth + this.containerLeft && this.speedX !== 0) {
+                    this.scoreTable.updateScore(1, 0);
+                    this.speedX = 0;
+                    this.speedY = 0;
+                    this.moved = 0
+                }
+
+                if (this.ballCenterX - this.ballRadius < this.containerLeft && this.speedX !== 0) {
+                    this.scoreTable.updateScore(0, 1);
+                    this.speedX = 0;
+                    this.speedY = 0;
+                    this.moved = 0;
+                }
+
+                if (this.ballCenterY + this.ballRadius > this.containerHeight + this.containerTop) {
+                    this.speedY = -this.speedY;
+                }
+
+                if (this.ballCenterY - this.ballRadius < this.containerTop) {
+                    this.speedY = -this.speedY;
+                }
+            }
+        }
+
+        /**
+         * @method position for ball after goal
+         */
+        startPosition() {
+            this.ballCenterX = this.containerWidth / 2;
+            this.ballCenterY = this.containerHeight / 2;
+            this.speedX = 2;
+            this.speedY = 2;
+        }
+    }
+
+    document.addEventListener('keydown', (eo) => {
+        let keyCode = eo.code;
+
+        if (keyCode === 'ShiftLeft') {
+            firstPlayer.speed = -5;
+        }
+        if (keyCode === 'ControlLeft') {
+            firstPlayer.speed = 5;
+        }
+        if (keyCode === 'ArrowUp') {
+            secondPlayer.speed = -5;
+        }
+        if (keyCode === 'ArrowDown') {
+            secondPlayer.speed = 5;
+        }
+    });
+
+    document.addEventListener('keyup', (eo) => {
+        let keyCode = eo.code;
+
+        if (keyCode === 'ShiftLeft' || keyCode === 'ControlLeft') {
+            firstPlayer.speed = 0;
+        }
+        if (keyCode === 'ArrowUp' || keyCode === 'ArrowDown') {
+            secondPlayer.speed = 0;
+        }
+    });
+
+    document.addEventListener('click', () => {
+        if (!ball.moved) {
+            ball.moved = 1;
+            ball.startPosition();
+        }
+    });
+
+    // Init
+    StartButton.create();
+    let scoreTable = new ScoreTable();
+    scoreTable.updateScore(0, 0);
+
+    let field = new Field();
+    let firstPlayer = new Player();
+    let secondPlayer = new Player();
+    let ball = new Ball(firstPlayer, secondPlayer, scoreTable);
+
+    function start() {
+        field.draw();
+        firstPlayer.draw(true);
+        secondPlayer.draw(false);
+        ball.draw();
+
+        ball.move();
+        firstPlayer.move();
+        secondPlayer.move();
+        window.requestAnimationFrame(start);
+    }
+
+    window.requestAnimationFrame(start);
+</script>
+</body>
+</html>
