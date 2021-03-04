@@ -41,39 +41,42 @@
             });
         });
     });
-
+    console.log(Y)
     const s = [];
     const n = 1300;
     const m = Array(bezier.length).fill(n / bezier.length);
+    console.log(m)
     bezier.forEach((seg, i) => {
         s[i] = [];
         const dt = 1 / m[i];
+
         for (let t = 0; t < 1; t += dt) {
+
             s[i].push(Y[i](t));
         }
     });
 
-    function mag(a,b) {
-        return Math.sqrt(Math.pow(a,2) + Math.pow(b,2));
+    function mag(a, b) {
+        return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
     }
 
     let l = [];
-    for (let i=0; i<bezier.length; i++) {
+    for (let i = 0; i < bezier.length; i++) {
         l[i] = 0;
-        for (let j=0; j<m[i]-1; j++) {
+        for (let j = 0; j < m[i] - 1; j++) {
             l[i] += mag(
-                (s[i][j+1].x-s[i][j].x),
-                (s[i][j+1].y-s[i][j].y)
+                (s[i][j + 1].x - s[i][j].x),
+                (s[i][j + 1].y - s[i][j].y)
             );
         }
         if (i < bezier.length - 1) {
             l[i] += mag(
-                (s[i+1][0].x-s[i][m[i]-1].x),
-                (s[i+1][0].y-s[i][m[i]-1].y)
+                (s[i + 1][0].x - s[i][m[i] - 1].x),
+                (s[i + 1][0].y - s[i][m[i] - 1].y)
             );
         }
     }
-    const l_total = l.reduce((a,c) => {
+    const l_total = l.reduce((a, c) => {
         return a + c;
     });
     console.log(l)
@@ -90,17 +93,17 @@
 
     const d_avg = l_total / (n - 1);
     const step_size = (1 / n) / 10;
-    for (let i=0; i<bezier.length; i++) {
+    for (let i = 0; i < bezier.length; i++) {
         let t = [];
-        for (let j=0; j<m[i]; j++) {
+        for (let j = 0; j < m[i]; j++) {
             t[j] = j / m[i];
         }
-        for (let r=0; r<100; r++) {
+        for (let r = 0; r < 100; r++) {
             let d = [];
-            for (let j=0; j<m[i]-1; j++) {
+            for (let j = 0; j < m[i] - 1; j++) {
                 d[j] = mag(
-                    (s[i][j+1].x-s[i][j].x),
-                    (s[i][j+1].y-s[i][j].y)
+                    (s[i][j + 1].x - s[i][j].x),
+                    (s[i][j + 1].y - s[i][j].y)
                 );
             }
             const d_err = d.map((segment) => {
@@ -108,23 +111,22 @@
             });
             let offset = 0;
             const cutoff = (i === bezier.length - 1) ? 0 : 1;
-            for (let j=1; j<m[i]-cutoff; j++) {
-                offset += d_err[j-1];
+            for (let j = 1; j < m[i] - cutoff; j++) {
+                offset += d_err[j - 1];
                 t[j] -= step_size * offset;
                 s[i][j] = Y[i](t[j]);
             }
         }
     }
 
-let b = [];
+    let b = [];
 
- for(let i = 0 ; i< s.length; i++) {
-     for ( let j = 0; j < s[i].length; j++) {
-         b.push(s[i][j]);
-     }
- }
-    let json = JSON.stringify(b);
-    console.log(json)
+    for (let i = 0; i < s.length; i++) {
+        for (let j = 0; j < s[i].length; j++) {
+            b.push(s[i][j]);
+        }
+    }
+
 </script>
 </body>
 </html>
