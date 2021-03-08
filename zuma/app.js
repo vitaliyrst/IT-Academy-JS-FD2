@@ -1,7 +1,9 @@
+import {dataGame} from "./classes/Data.js";
+import {Game} from "./model/Game.js";
 import {Ball} from "./model/Ball.js";
 import {Frog} from "./model/Frog.js";
 import {FrogController} from "./controller/FrogController.js";
-
+import {GameController} from "./controller/GameController.js";
 let obj1 = [
     {"x": 655, "y": 0}, {"x": 655.0717004573921, "y": 2.6362423707504172}, {
         "x": 655.1429846404046,
@@ -1932,26 +1934,27 @@ let obj1 = [
     }, {"x": 265.5927153347689, "y": 258.0997962626774}
 ];
 
-let colors = ['./storage/colors/ball_0.png', './storage/colors/ball_1.png', './storage/colors/ball_2.png',
-    './storage/colors/ball_3.png', './storage/colors/ball_4.png', './storage/colors/ball_5.png',];
+let game = new Game(dataGame);
+game.createCanvas();
 
-let canvas = document.getElementById('canvas');
-let context = canvas.getContext('2d');
-let fieldImage = new Image();
-fieldImage.src = './storage/levels/1-1/Spiral.jpg';
+let gameController = new GameController(game);
+gameController.resize();
 
-let frog = new Frog(150, 150, 335, 217, context);
-let frogController = new FrogController(frog);
-frogController.move();
+let frog = new Frog(dataGame);
+new FrogController(frog);
 
-let balls = []
+
+
+
+
+
+
+let balls = [];
+let cooB = [];
 
 function getBall() {
-    let ball = new Ball(obj1[0].x, obj1[0].y, obj1, context);
-    ball.setColor(colors);
-
-    if (balls.length < 25) {
-
+    let ball = new Ball(dataGame ,obj1[0].x, obj1[0].y, obj1, game.ballsColor);
+    if (balls.length < 30) {
         balls.push(ball);
     }
 }
@@ -1960,18 +1963,33 @@ getBall();
 
 
 function work() {
-    context.drawImage(fieldImage, 0, 0, 800, 600);
+    game.updateCanvas();
     frog.draw();
+
 
     if (balls[balls.length - 1].pathSection === 12) {
         getBall();
     }
 
     for (let i = 0; i < balls.length; i++) {
+        if (balls.length >= 30) {
+            balls[i].speed = 1;
+        }
+        let xMax = Math.max(frog.bulletCenterX, balls[i].x);
+        let xMin = Math.min(frog.bulletCenterX, balls[i].x);
+        let yMax = Math.max(frog.bulletCenterY, balls[i].y);
+        let yMin = Math.min(frog.bulletCenterY, balls[i].y);
+        if (frog.bulletState === 1 && xMax - xMin <= 15 && yMax - yMin <= 15) {
+            frog.stopBullet();
+            balls.splice(i, 1);
+            continue
+        }
 
         balls[i].draw();
         balls[i].update();
     }
+
+
     window.requestAnimationFrame(work);
 }
 
