@@ -12,7 +12,7 @@ let dataGame = {
 
     ballRadius : 15,
     ballsColor: ['./storage/colors/BlueBall1.jpg', './storage/colors/GreenBall1.jpg', './storage/colors/PurpleBall1.jpg',
-        './storage/colors/RedBall1.jpg', './storage/colors/WhiteBall1.jpg', './storage/colors/YellowBall1.jpg'],
+        './storage/colors/RedBall1.jpg',/* './storage/colors/WhiteBall1.jpg', './storage/colors/YellowBall1.jpg'*/],
     pointsPath: [
         {A: {x: 655, y: 0}, B: {x: 658, y: 110}, C: {x: 660, y: 220}, D: {x: 650, y: 330}},
         {A: {x: 650, y: 330}, B: {x: 630, y: 420}, C: {x: 585, y: 480}, D: {x: 505, y: 527}},

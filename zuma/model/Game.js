@@ -1,5 +1,6 @@
 class Game {
     constructor(data) {
+        this.state = 700;
         this.level = data.level;
         this.levelBg = data.levelBg;
         this.canvasWidth = data.canvasWidth;

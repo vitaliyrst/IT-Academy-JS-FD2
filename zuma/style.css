@@ -1,18 +1,14 @@
 body {
     margin: 0;
     padding: 0;
-
-    /*background-image: url("storage/levels/1-1/Spiral.jpg");
-    background-size: 800px 600px;*/
-
 }
 
-@media screen and (min-width: 910px) {
+@media screen and (min-width: 900px) {
     .zuma-main-container {
         width: 100vw;
         height: 100vh;
 
-        background-image: url("./storage/bg.jpg");
+        background-image: url("storage/backgrounds/bg.jpg");
         background-size: 100% 100%;
 
         position: relative;
@@ -35,15 +31,15 @@ body {
         width: 100vw;
         height: 100vh;
 
-        background-image: url("./storage/bg2.jpg");
+        background-image: url("storage/backgrounds/bg2.jpg");
         background-size: 100% 100%;
 
         position: relative;
     }
 
     .zuma-container {
-        width: 750px;
-        height: 550px;
+        width: 700px;
+        height: 500px;
         border: 10px solid black;
 
         position: absolute;

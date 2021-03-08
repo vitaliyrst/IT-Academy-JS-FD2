@@ -8,16 +8,12 @@ class FrogController {
     move() {
         let canvas = document.getElementById('zuma-canvas');
         canvas.addEventListener('mousemove', (eo) => {
-
-
             let clientX = eo.clientX - canvas.getBoundingClientRect().x;
             let clientY = eo.clientY - canvas.getBoundingClientRect().y;
-
             let angle = Math.atan2(-(clientX - (this.model.frogLeft + this.model.frogWidth / 2)),
                 clientY - (this.model.frogTop + this.model.frogHeight / 2));
             this.model.updateFrogAngle(angle);
         });
-
     }
 
     shot() {

@@ -14,11 +14,13 @@ class Ball extends Game{
         super(dataGame);
         this.x = x;
         this.y = y;
-        this.speed = 30;
+        this.speed = 1;
         this.color = 0;
         this.path = path;
         this.pathSection = 0;
         this.#setColor(this.ballsColor);
+        this.angle = 0;
+        this.canNext = 0;
     }
 
     #setColor(colors) {
@@ -43,7 +45,6 @@ class Ball extends Game{
             if (this.rowCount === 6) {
                 this.rowCount = 0;
             }
-
             this.frame = (this.frame < this.numberOfRows - 1) ? this.frame += 1 : this.frame = 0;
         }
         this.tickCount++;
@@ -70,7 +71,7 @@ class Ball extends Game{
             return;
         }
         let angle = Math.atan2(this.path[this.pathSection].x - this.x, this.path[this.pathSection].y - this.y);
-
+this.angle = angle;
         if (Math.abs(this.x - this.path[this.pathSection].x) < this.speed &&
             Math.abs(this.y - this.path[this.pathSection].y) < this.speed) {
             this.x = this.path[this.pathSection].x;
@@ -80,8 +81,6 @@ class Ball extends Game{
             this.x += Math.sin(angle) * this.speed;
             this.y += Math.cos(angle) * this.speed;
         }
-
-
     }
 }
 
