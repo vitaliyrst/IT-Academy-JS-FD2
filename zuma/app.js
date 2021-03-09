@@ -36,7 +36,7 @@ for (let i = 0; i < 30; i++) {
 function work() {
     game.updateCanvas();
     frog.draw();
-
+// если от верха экрана или от низа или слева или справа
     balls[0].canNext = 1;
     for (let i = 0; i < balls.length; i++) {
 
